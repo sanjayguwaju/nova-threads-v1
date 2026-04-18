@@ -68,6 +68,12 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    products: Product;
+    categories: Category;
+    orders: Order;
+    reviews: Review;
+    coupons: Coupon;
+    tags: Tag;
     media: Media;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -77,6 +83,12 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    coupons: CouponsSelect<false> | CouponsSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -87,8 +99,14 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+    navigation: Navigation;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -123,6 +141,29 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatar?: (string | null) | Media;
+  phone?: string | null;
+  dateOfBirth?: string | null;
+  role?: ('customer' | 'admin' | 'editor') | null;
+  addresses?:
+    | {
+        label?: string | null;
+        firstName?: string | null;
+        lastName?: string | null;
+        line1?: string | null;
+        line2?: string | null;
+        city?: string | null;
+        state?: string | null;
+        zip?: string | null;
+        country?: string | null;
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  wishlist?: (string | Product)[] | null;
+  stripeCustomerId?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -148,7 +189,8 @@ export interface User {
  */
 export interface Media {
   id: string;
-  alt: string;
+  alt?: string | null;
+  caption?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -160,6 +202,247 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  name: string;
+  slug?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  shortDescription?: string | null;
+  category?: (string | null) | Category;
+  brand?: string | null;
+  tags?: (string | Tag)[] | null;
+  gender?: ('men' | 'women' | 'unisex' | 'kids') | null;
+  variants?:
+    | {
+        sku: string;
+        size?: ('XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'One Size') | null;
+        color?: string | null;
+        colorHex?: string | null;
+        stock?: number | null;
+        price: number;
+        compareAtPrice?: number | null;
+        images?: (string | Media)[] | null;
+        id?: string | null;
+      }[]
+    | null;
+  mainImage?: (string | null) | Media;
+  gallery?: (string | Media)[] | null;
+  materials?:
+    | {
+        material?: string | null;
+        percentage?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  careInstructions?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  features?:
+    | {
+        feature?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  isNew?: boolean | null;
+  isFeatured?: boolean | null;
+  isBestSeller?: boolean | null;
+  status?: ('draft' | 'published' | 'archived') | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (string | null) | Media;
+  };
+  averageRating?: number | null;
+  reviewCount?: number | null;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  name: string;
+  slug?: string | null;
+  description?: string | null;
+  parent?: (string | null) | Category;
+  image?: (string | null) | Media;
+  order?: number | null;
+  featuredOnHome?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: string;
+  name: string;
+  slug?: string | null;
+  color?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  orderNumber?: string | null;
+  customer?: (string | null) | User;
+  guestEmail?: string | null;
+  items?:
+    | {
+        product?: (string | null) | Product;
+        variantSku?: string | null;
+        variantLabel?: string | null;
+        quantity?: number | null;
+        unitPrice?: number | null;
+        totalPrice?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  subtotal?: number | null;
+  discount?: number | null;
+  shipping?: number | null;
+  tax?: number | null;
+  total?: number | null;
+  coupon?: (string | null) | Coupon;
+  status?: ('pending' | 'payment_failed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded') | null;
+  shippingAddress?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    line1?: string | null;
+    line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+    country?: string | null;
+    phone?: string | null;
+  };
+  billingAddress?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    line1?: string | null;
+    line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+    country?: string | null;
+    phone?: string | null;
+  };
+  stripePaymentIntentId?: string | null;
+  stripeSessionId?: string | null;
+  trackingNumber?: string | null;
+  notes?: string | null;
+  timeline?:
+    | {
+        status?: string | null;
+        timestamp?: string | null;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons".
+ */
+export interface Coupon {
+  id: string;
+  code: string;
+  type: 'percentage' | 'fixed' | 'free_shipping' | 'buy_x_get_y';
+  value?: number | null;
+  minOrderAmount?: number | null;
+  maxUses?: number | null;
+  usedCount?: number | null;
+  validFrom?: string | null;
+  validUntil?: string | null;
+  applicableCategories?: (string | Category)[] | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: string;
+  product: string | Product;
+  author: string | User;
+  rating: number;
+  title?: string | null;
+  body?: string | null;
+  verified?: boolean | null;
+  images?: (string | Media)[] | null;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  helpfulCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -188,6 +471,30 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: string | User;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: string | Review;
+      } | null)
+    | ({
+        relationTo: 'coupons';
+        value: string | Coupon;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: string | Tag;
       } | null)
     | ({
         relationTo: 'media';
@@ -240,6 +547,29 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  avatar?: T;
+  phone?: T;
+  dateOfBirth?: T;
+  role?: T;
+  addresses?:
+    | T
+    | {
+        label?: T;
+        firstName?: T;
+        lastName?: T;
+        line1?: T;
+        line2?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+        isDefault?: T;
+        id?: T;
+      };
+  wishlist?: T;
+  stripeCustomerId?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -259,10 +589,198 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  shortDescription?: T;
+  category?: T;
+  brand?: T;
+  tags?: T;
+  gender?: T;
+  variants?:
+    | T
+    | {
+        sku?: T;
+        size?: T;
+        color?: T;
+        colorHex?: T;
+        stock?: T;
+        price?: T;
+        compareAtPrice?: T;
+        images?: T;
+        id?: T;
+      };
+  mainImage?: T;
+  gallery?: T;
+  materials?:
+    | T
+    | {
+        material?: T;
+        percentage?: T;
+        id?: T;
+      };
+  careInstructions?: T;
+  features?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  isNew?: T;
+  isFeatured?: T;
+  isBestSeller?: T;
+  status?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  averageRating?: T;
+  reviewCount?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  parent?: T;
+  image?: T;
+  order?: T;
+  featuredOnHome?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  customer?: T;
+  guestEmail?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        variantSku?: T;
+        variantLabel?: T;
+        quantity?: T;
+        unitPrice?: T;
+        totalPrice?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  discount?: T;
+  shipping?: T;
+  tax?: T;
+  total?: T;
+  coupon?: T;
+  status?: T;
+  shippingAddress?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        line1?: T;
+        line2?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+        phone?: T;
+      };
+  billingAddress?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        line1?: T;
+        line2?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+        phone?: T;
+      };
+  stripePaymentIntentId?: T;
+  stripeSessionId?: T;
+  trackingNumber?: T;
+  notes?: T;
+  timeline?:
+    | T
+    | {
+        status?: T;
+        timestamp?: T;
+        note?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  product?: T;
+  author?: T;
+  rating?: T;
+  title?: T;
+  body?: T;
+  verified?: T;
+  images?: T;
+  status?: T;
+  helpfulCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons_select".
+ */
+export interface CouponsSelect<T extends boolean = true> {
+  code?: T;
+  type?: T;
+  value?: T;
+  minOrderAmount?: T;
+  maxUses?: T;
+  usedCount?: T;
+  validFrom?: T;
+  validUntil?: T;
+  applicableCategories?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -274,6 +792,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -314,6 +866,196 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  storeName?: string | null;
+  logo?: (string | null) | Media;
+  favicon?: (string | null) | Media;
+  heroSlides?:
+    | {
+        headline?: string | null;
+        subheadline?: string | null;
+        cta?: string | null;
+        image?: (string | null) | Media;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  announcement?: string | null;
+  socialLinks?: {
+    instagram?: string | null;
+    tiktok?: string | null;
+    pinterest?: string | null;
+    facebook?: string | null;
+  };
+  shippingPolicy?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  returnPolicy?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  trendingSearches?:
+    | {
+        term?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (string | null) | Media;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: string;
+  mainNav?:
+    | {
+        label?: string | null;
+        link?: string | null;
+        megaMenu?:
+          | {
+              label?: string | null;
+              link?: string | null;
+              image?: (string | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  footerNav?:
+    | {
+        heading?: string | null;
+        links?:
+          | {
+              label?: string | null;
+              link?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  storeName?: T;
+  logo?: T;
+  favicon?: T;
+  heroSlides?:
+    | T
+    | {
+        headline?: T;
+        subheadline?: T;
+        cta?: T;
+        image?: T;
+        link?: T;
+        id?: T;
+      };
+  announcement?: T;
+  socialLinks?:
+    | T
+    | {
+        instagram?: T;
+        tiktok?: T;
+        pinterest?: T;
+        facebook?: T;
+      };
+  shippingPolicy?: T;
+  returnPolicy?: T;
+  trendingSearches?:
+    | T
+    | {
+        term?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  mainNav?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        megaMenu?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              image?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  footerNav?:
+    | T
+    | {
+        heading?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

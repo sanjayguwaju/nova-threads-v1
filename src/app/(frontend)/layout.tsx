@@ -1,18 +1,22 @@
+import type { Metadata } from 'next'
 import React from 'react'
-import './styles.css'
+import './globals.css'
+import { QueryProvider } from './providers'
 
-export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+export const metadata: Metadata = {
+  description: 'NOVA THREADS - Premium Fashion for Everyone',
+  title: 'NOVA THREADS',
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html lang="en">
-      <body>
-        <main>{children}</main>
+    <html lang="en" suppressHydrationWarning data-theme="light">
+      <body suppressHydrationWarning>
+        <QueryProvider>
+          <main>{children}</main>
+        </QueryProvider>
       </body>
     </html>
   )
