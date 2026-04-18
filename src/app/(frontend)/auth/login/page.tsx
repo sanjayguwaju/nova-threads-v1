@@ -15,7 +15,8 @@ export default function LoginPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(''); setLoading(true)
+    setError('')
+    setLoading(true)
     try {
       await login(email, password)
       router.push('/account')
@@ -31,14 +32,25 @@ export default function LoginPage() {
     <div className="max-w-[440px] mx-auto px-24 py-80">
       <h1 className="font-display text-[40px] text-center mb-32">Sign In</h1>
       <form onSubmit={onSubmit} className="space-y-20">
-        <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         {error && <div className="text-signal text-[13px]">{error}</div>}
-        <Button type="submit" full disabled={loading}>{loading ? 'Signing in…' : 'Sign In'}</Button>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Signing in…' : 'Sign In'}
+        </Button>
       </form>
       <div className="flex justify-between mt-24 font-mono text-[11px] uppercase tracking-widest">
-        <Link href="/auth/forgot-password" className="text-stone hover:text-ink">Forgot password</Link>
-        <Link href="/auth/register" className="text-stone hover:text-ink">Create account</Link>
+        <Link href="/auth/forgot-password" className="text-stone hover:text-ink">
+          Forgot password
+        </Link>
+        <Link href="/auth/register" className="text-stone hover:text-ink">
+          Create account
+        </Link>
       </div>
     </div>
   )

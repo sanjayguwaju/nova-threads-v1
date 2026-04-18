@@ -13,7 +13,10 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    try { await forgotPassword(email); setSent(true) } catch {}
+    try {
+      await forgotPassword(email)
+      setSent(true)
+    } catch {}
     setLoading(false)
   }
 
@@ -24,13 +27,22 @@ export default function ForgotPasswordPage() {
         <p className="text-center text-stone">If an account exists, a reset link has been sent.</p>
       ) : (
         <form onSubmit={onSubmit} className="space-y-20">
-          <p className="text-stone text-center text-[14px]">Enter your email to receive reset instructions.</p>
-          <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Button type="submit" full disabled={loading}>{loading ? 'Sending…' : 'Send Reset Link'}</Button>
+          <p className="text-stone text-center text-[14px]">
+            Enter your email to receive reset instructions.
+          </p>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Sending…' : 'Send Reset Link'}
+          </Button>
         </form>
       )}
       <div className="text-center mt-24">
-        <Link href="/auth/login" className="font-mono text-[11px] uppercase tracking-widest underline">Back to Sign In</Link>
+        <Link
+          href="/auth/login"
+          className="font-mono text-[11px] uppercase tracking-widest underline"
+        >
+          Back to Sign In
+        </Link>
       </div>
     </div>
   )

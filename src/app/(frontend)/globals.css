@@ -292,15 +292,6 @@ html[data-font-size="large"] {
    but since it uses text-[px] it stays absolute unless we change it.
    Let's make sure the whole app feels scaled. */
 
-html {
-  opacity: 0;
-}
-
-html[data-theme="dark"],
-html[data-theme="light"] {
-  opacity: initial;
-}
-
 .dark {
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);

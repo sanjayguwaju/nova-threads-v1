@@ -1,35 +1,20 @@
-'use client'
-import { forwardRef, InputHTMLAttributes } from 'react'
-import { cn } from '@/lib/utils/cn'
+import * as React from "react"
+import { Input as InputPrimitive } from "@base-ui/react/input"
 
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string
-  error?: string
+import { cn } from "@/lib/utils"
+
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+  return (
+    <InputPrimitive
+      type={type}
+      data-slot="input"
+      className={cn(
+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
-export const Input = forwardRef<HTMLInputElement, Props>(function Input(
-  { label, error, className, id, ...rest },
-  ref
-) {
-  const inputId = id || rest.name
-  return (
-    <div className="flex flex-col gap-4">
-      {label && (
-        <label htmlFor={inputId} className="font-mono text-[11px] uppercase tracking-widest text-stone">
-          {label}
-        </label>
-      )}
-      <input
-        id={inputId}
-        ref={ref}
-        className={cn(
-          'w-full bg-transparent border-b border-stone/50 py-12 text-[16px] text-ink placeholder:text-stone/60 focus:outline-none focus:border-ink transition-colors',
-          error && 'border-signal',
-          className
-        )}
-        {...rest}
-      />
-      {error && <span className="text-[12px] text-signal">{error}</span>}
-    </div>
-  )
-})
+export { Input }

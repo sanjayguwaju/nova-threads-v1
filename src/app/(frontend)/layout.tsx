@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import React from 'react'
 import './globals.css'
 import { QueryProvider } from './providers'
+import { TooltipProvider } from '@/components/ui/Tooltip'
 
 export const metadata: Metadata = {
   description: 'NOVA THREADS - Premium Fashion for Everyone',
@@ -15,7 +16,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning data-theme="light">
       <body suppressHydrationWarning>
         <QueryProvider>
-          <main>{children}</main>
+          <TooltipProvider>
+            <main>{children}</main>
+          </TooltipProvider>
         </QueryProvider>
       </body>
     </html>

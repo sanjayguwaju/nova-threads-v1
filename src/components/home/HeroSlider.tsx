@@ -3,7 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { cn } from '@/lib/utils/cn'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/Button'
 
 interface Slide {
   headline?: string
@@ -40,7 +41,10 @@ export function HeroSlider({ slides }: { slides?: Slide[] }) {
   }, [list.length])
 
   const current = list[i]
-  const img = typeof current.image === 'string' ? current.image : current.image?.sizes?.hero?.url || current.image?.url
+  const img =
+    typeof current.image === 'string'
+      ? current.image
+      : current.image?.sizes?.hero?.url || current.image?.url
 
   return (
     <section className="relative h-[90vh] overflow-hidden bg-ink">
@@ -54,7 +58,14 @@ export function HeroSlider({ slides }: { slides?: Slide[] }) {
           className="absolute inset-0"
         >
           {img && (
-            <Image src={img} alt={current.headline || ''} fill priority className="object-cover" sizes="100vw" />
+            <Image
+              src={img}
+              alt={current.headline || ''}
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+            />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent" />
         </motion.div>
@@ -75,12 +86,16 @@ export function HeroSlider({ slides }: { slides?: Slide[] }) {
             <p className="mt-16 text-stone text-[18px]">{current.subheadline}</p>
           )}
           {current.cta && current.link && (
-            <Link
-              href={current.link}
-              className="mt-32 inline-block border border-paper text-paper px-28 py-14 font-mono text-[12px] uppercase tracking-widest hover:bg-paper hover:text-ink transition-colors"
-            >
-              {current.cta}
-            </Link>
+            <div className="mt-8">
+              <Link href={current.link}>
+                <Button
+                  variant="outline"
+                  className="border-white text-white hover:bg-white hover:text-black uppercase tracking-widest text-xs"
+                >
+                  {current.cta}
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
