@@ -59,9 +59,7 @@ export default async function HomePage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={<HomeSkeleton />}>
-        <HomeContent />
-      </Suspense>
+      <Suspense fallback={<HomeSkeleton />}></Suspense>
     </HydrationBoundary>
   )
 }
