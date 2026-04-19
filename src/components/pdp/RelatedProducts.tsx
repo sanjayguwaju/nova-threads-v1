@@ -1,16 +1,35 @@
+'use client'
+
 import { ProductCard } from '../shop/ProductCard'
+import { motion } from 'framer-motion'
 
 export function RelatedProducts({ products }: { products: any[] }) {
   if (!products?.length) return null
+
   return (
-    <section className="py-48 border-t border-stone/20">
-      <div className="max-w-container mx-auto px-24">
-        <div className="flex items-center gap-16 mb-32">
-          <span className="rule" />
-          <h2 className="font-mono text-[11px] uppercase tracking-widest">You May Also Like</h2>
+    <section className="py-12 sm:py-16 lg:py-20 bg-[var(--color-nt-off-white)]">
+      <div className="max-w-container mx-auto px-4 sm:px-8 lg:px-16">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <div className="w-6 h-[2px] bg-[var(--color-nt-black)]" />
+          <h2 className="text-[13px] sm:text-[14px] font-semibold uppercase tracking-[0.1em] text-[var(--color-nt-black)]">
+            You May Also Like
+          </h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-24">
-          {products.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          {products.slice(0, 4).map((p, i) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+            >
+              <ProductCard product={p} />
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

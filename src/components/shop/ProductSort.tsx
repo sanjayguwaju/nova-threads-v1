@@ -1,5 +1,7 @@
 'use client'
+
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { ChevronDown } from 'lucide-react'
 
 const OPTIONS = [
   { value: 'featured', label: 'Featured' },
@@ -10,7 +12,7 @@ const OPTIONS = [
   { value: 'best-selling', label: 'Best Selling' },
 ]
 
-export function ProductSort({ total }: { total: number }) {
+export function ProductSort() {
   const router = useRouter()
   const pathname = usePathname()
   const sp = useSearchParams()
@@ -21,20 +23,31 @@ export function ProductSort({ total }: { total: number }) {
     router.push(`${pathname}?${p.toString()}`, { scroll: false })
   }
 
+  const currentLabel =
+    OPTIONS.find((o) => o.value === (sp.get('sort') || 'featured'))?.label || 'Featured'
+
   return (
-    <div className="flex items-center justify-between border-b border-stone/20 pb-16 mb-24">
-      <div className="font-mono text-[11px] uppercase tracking-widest text-stone">
-        {total} {total === 1 ? 'Product' : 'Products'}
-      </div>
-      <div className="flex items-center gap-12">
-        <label className="font-mono text-[11px] uppercase tracking-widest text-stone">Sort</label>
+    <div className="flex items-center gap-2">
+      <span className="hidden sm:inline text-[12px] text-[var(--color-nt-mid-gray)] uppercase tracking-wider">
+        Sort by:
+      </span>
+      <div className="relative">
         <select
           value={sp.get('sort') || 'featured'}
           onChange={(e) => onChange(e.target.value)}
-          className="bg-transparent font-mono text-[12px] focus:outline-none border-b border-transparent hover:border-ink"
+          className="appearance-none bg-transparent text-[13px] text-[var(--color-nt-black)] font-medium focus:outline-none pr-6 cursor-pointer"
         >
-          {OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          {OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
         </select>
+        <ChevronDown
+          size={14}
+          strokeWidth={1.5}
+          className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-nt-mid-gray)]"
+        />
       </div>
     </div>
   )

@@ -1,10 +1,11 @@
 'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/Button'
 
 interface Slide {
   headline?: string
@@ -16,17 +17,24 @@ interface Slide {
 
 const DEFAULTS: Slide[] = [
   {
-    headline: 'Quiet luxury for everyday wear',
+    headline: 'Timeless style for modern lives',
     subheadline: 'Autumn/Winter collection now available',
-    cta: 'Shop New In',
-    image: 'https://picsum.photos/seed/nova1/1920/1080',
+    cta: 'Shop Now',
+    image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&h=1080&fit=crop',
     link: '/shop?sort=newest',
   },
   {
-    headline: 'Made to last',
-    subheadline: 'Sustainably crafted essentials',
+    headline: 'Quiet luxury essentials',
+    subheadline: 'Sustainably crafted for everyday wear',
     cta: 'Explore',
-    image: 'https://picsum.photos/seed/nova2/1920/1080',
+    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&h=1080&fit=crop',
+    link: '/shop',
+  },
+  {
+    headline: 'Made to last',
+    subheadline: 'Investment pieces for your wardrobe',
+    cta: 'Discover',
+    image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920&h=1080&fit=crop',
     link: '/shop',
   },
 ]
@@ -34,11 +42,21 @@ const DEFAULTS: Slide[] = [
 export function HeroSlider({ slides }: { slides?: Slide[] }) {
   const list = (slides?.length ? slides : DEFAULTS) as Slide[]
   const [i, setI] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+
+  const nextSlide = useCallback(() => {
+    setI((n) => (n + 1) % list.length)
+  }, [list.length])
+
+  const prevSlide = useCallback(() => {
+    setI((n) => (n - 1 + list.length) % list.length)
+  }, [list.length])
 
   useEffect(() => {
-    const t = setInterval(() => setI((n) => (n + 1) % list.length), 6000)
+    if (isPaused) return
+    const t = setInterval(nextSlide, 6000)
     return () => clearInterval(t)
-  }, [list.length])
+  }, [isPaused, nextSlide])
 
   const current = list[i]
   const img =
@@ -47,67 +65,109 @@ export function HeroSlider({ slides }: { slides?: Slide[] }) {
       : current.image?.sizes?.hero?.url || current.image?.url
 
   return (
-    <section className="relative h-[90vh] overflow-hidden bg-ink">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={i}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
-          className="absolute inset-0"
-        >
-          {img && (
-            <Image
-              src={img}
-              alt={current.headline || ''}
-              fill
-              priority
-              className="object-cover"
-              sizes="100vw"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent" />
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="relative h-full max-w-container mx-auto px-24 flex items-end pb-80">
-        <div className="max-w-[600px] text-paper">
-          <motion.h1
-            key={`h-${i}`}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="fluid-display font-display italic"
+    <section
+      className="relative w-full overflow-hidden bg-[var(--color-nt-off-black)]"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Mobile: 90vh aspect ratio container */}
+      <div className="relative aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9]">
+        {/* Slides */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute inset-0"
           >
-            {current.headline}
-          </motion.h1>
-          {current.subheadline && (
-            <p className="mt-16 text-stone text-[18px]">{current.subheadline}</p>
-          )}
-          {current.cta && current.link && (
-            <div className="mt-8">
-              <Link href={current.link}>
-                <Button
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-black uppercase tracking-widest text-xs"
-                >
-                  {current.cta}
-                </Button>
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
+            {img && (
+              <Image
+                src={img}
+                alt={current.headline || ''}
+                fill
+                priority
+                className="object-cover object-top"
+                sizes="100vw"
+              />
+            )}
+            {/* Gradient overlay - stronger at bottom for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-nt-black)]/80 via-[var(--color-nt-black)]/20 to-transparent" />
+          </motion.div>
+        </AnimatePresence>
 
-      <div className="absolute bottom-32 right-32 flex gap-12">
-        {list.map((_, n) => (
+        {/* Content overlay */}
+        <div className="absolute inset-0 flex items-end">
+          <div className="w-full max-w-container mx-auto px-4 sm:px-8 lg:px-16 pb-8 sm:pb-12 lg:pb-16">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={i}
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="max-w-[400px] lg:max-w-[500px]"
+              >
+                <h1 className="text-[28px] sm:text-[40px] lg:text-[56px] font-bold leading-[1.0] tracking-[-0.02em] uppercase text-[var(--color-nt-white)]">
+                  {current.headline}
+                </h1>
+
+                {current.subheadline && (
+                  <p className="mt-3 sm:mt-4 text-[var(--color-nt-white)]/70 text-[13px] sm:text-[14px] font-normal leading-relaxed">
+                    {current.subheadline}
+                  </p>
+                )}
+
+                {current.cta && current.link && (
+                  <div className="mt-4 sm:mt-6">
+                    <Link
+                      href={current.link}
+                      className="inline-flex items-center justify-center bg-[var(--color-nt-white)] text-[var(--color-nt-black)] text-[13px] font-semibold uppercase tracking-[0.08em] px-8 py-4 min-h-[48px] hover:bg-[var(--color-nt-off-white)] transition-colors duration-200 cursor-pointer"
+                    >
+                      {current.cta}
+                    </Link>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Navigation arrows - desktop only */}
+        <div className="hidden sm:flex absolute inset-y-0 left-0 right-0 items-center justify-between px-4 lg:px-8 pointer-events-none">
           <button
-            key={n}
-            onClick={() => setI(n)}
-            className={cn('h-[1px] transition-all', n === i ? 'bg-paper w-40' : 'bg-paper/40 w-20')}
-          />
-        ))}
+            onClick={prevSlide}
+            className="w-12 h-12 flex items-center justify-center bg-[var(--color-nt-white)]/10 backdrop-blur-sm text-[var(--color-nt-white)] hover:bg-[var(--color-nt-white)]/20 transition-colors duration-200 pointer-events-auto"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft size={24} strokeWidth={1.5} />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="w-12 h-12 flex items-center justify-center bg-[var(--color-nt-white)]/10 backdrop-blur-sm text-[var(--color-nt-white)] hover:bg-[var(--color-nt-white)]/20 transition-colors duration-200 pointer-events-auto"
+            aria-label="Next slide"
+          >
+            <ChevronRight size={24} strokeWidth={1.5} />
+          </button>
+        </div>
+
+        {/* Slide indicators - bottom center */}
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3">
+          {list.map((_, n) => (
+            <button
+              key={n}
+              onClick={() => setI(n)}
+              className={cn(
+                'transition-all duration-300 cursor-pointer',
+                n === i
+                  ? 'w-8 h-[3px] bg-[var(--color-nt-white)]'
+                  : 'w-8 h-[3px] bg-[var(--color-nt-white)]/40 hover:bg-[var(--color-nt-white)]/60',
+              )}
+              aria-label={`Go to slide ${n + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   )

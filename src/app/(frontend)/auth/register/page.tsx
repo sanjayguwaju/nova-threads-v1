@@ -8,21 +8,39 @@ import { Button } from '@/components/ui/Button'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [data, setData] = useState({ firstName: '', lastName: '', email: '', password: '', confirm: '' })
+  const [data, setData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirm: '',
+  })
   const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const update = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setData({ ...data, [k]: e.target.value })
+  const update = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setData({ ...data, [k]: e.target.value })
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (data.password !== data.confirm) { setError('Passwords do not match'); return }
-    if (!agreed) { setError('Please accept the terms'); return }
+    if (data.password !== data.confirm) {
+      setError('Passwords do not match')
+      return
+    }
+    if (!agreed) {
+      setError('Please accept the terms')
+      return
+    }
     setLoading(true)
     try {
-      await register({ firstName: data.firstName, lastName: data.lastName, email: data.email, password: data.password })
+      await register({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+      })
       router.push('/account')
       router.refresh()
     } catch (err: any) {
@@ -37,21 +55,71 @@ export default function RegisterPage() {
       <h1 className="font-display text-[40px] text-center mb-32">Create Account</h1>
       <form onSubmit={onSubmit} className="space-y-20">
         <div className="grid grid-cols-2 gap-16">
-          <Input label="First Name" value={data.firstName} onChange={update('firstName')} required />
-          <Input label="Last Name" value={data.lastName} onChange={update('lastName')} required />
+          <div className="space-y-8">
+            <label className="block text-[13px] font-medium text-[var(--color-nt-black)]">
+              First Name
+            </label>
+            <Input value={data.firstName} onChange={update('firstName')} required />
+          </div>
+          <div className="space-y-8">
+            <label className="block text-[13px] font-medium text-[var(--color-nt-black)]">
+              Last Name
+            </label>
+            <Input value={data.lastName} onChange={update('lastName')} required />
+          </div>
         </div>
-        <Input label="Email" type="email" value={data.email} onChange={update('email')} required />
-        <Input label="Password" type="password" value={data.password} onChange={update('password')} required minLength={8} />
-        <Input label="Confirm Password" type="password" value={data.confirm} onChange={update('confirm')} required />
+        <div className="space-y-8">
+          <label className="block text-[13px] font-medium text-[var(--color-nt-black)]">
+            Email
+          </label>
+          <Input type="email" value={data.email} onChange={update('email')} required />
+        </div>
+        <div className="space-y-8">
+          <label className="block text-[13px] font-medium text-[var(--color-nt-black)]">
+            Password
+          </label>
+          <Input
+            type="password"
+            value={data.password}
+            onChange={update('password')}
+            required
+            minLength={8}
+          />
+        </div>
+        <div className="space-y-8">
+          <label className="block text-[13px] font-medium text-[var(--color-nt-black)]">
+            Confirm Password
+          </label>
+          <Input type="password" value={data.confirm} onChange={update('confirm')} required />
+        </div>
         <label className="flex items-start gap-8 text-[13px]">
-          <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-4" />
-          <span className="text-stone">I agree to the <Link href="/legal/terms" className="underline">Terms</Link> and <Link href="/legal/privacy" className="underline">Privacy Policy</Link>.</span>
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-4"
+          />
+          <span className="text-stone">
+            I agree to the{' '}
+            <Link href="/legal/terms" className="underline">
+              Terms
+            </Link>{' '}
+            and{' '}
+            <Link href="/legal/privacy" className="underline">
+              Privacy Policy
+            </Link>
+            .
+          </span>
         </label>
         {error && <div className="text-signal text-[13px]">{error}</div>}
-        <Button type="submit" full disabled={loading}>{loading ? 'Creating…' : 'Create Account'}</Button>
+        <Button type="submit" full disabled={loading}>
+          {loading ? 'Creating…' : 'Create Account'}
+        </Button>
       </form>
       <div className="text-center mt-24 font-mono text-[11px] uppercase tracking-widest">
-        <Link href="/auth/login" className="text-stone hover:text-ink">Already have an account? Sign in</Link>
+        <Link href="/auth/login" className="text-stone hover:text-ink">
+          Already have an account? Sign in
+        </Link>
       </div>
     </div>
   )

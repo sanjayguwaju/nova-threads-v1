@@ -1,10 +1,10 @@
 'use client'
+
+import { Search, User, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
-import { Search, User, Heart, ShoppingBag, Menu } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import { useUIStore } from '@/store/useUIStore'
-import { useScrollDirection } from '@/hooks/useScrollDirection'
-import { cn } from '@/lib/utils/cn'
+import { AnnouncementBar } from './AnnouncementBar'
 
 interface Props {
   nav?: { mainNav?: Array<{ label?: string; link?: string }> }
@@ -13,60 +13,99 @@ interface Props {
 export function Header({ nav }: Props) {
   const items = useCartStore((s) => s.items)
   const count = items.reduce((n, i) => n + i.quantity, 0)
-  const { openCart, openSearch, toggleMobileMenu } = useUIStore()
-  const { atTop } = useScrollDirection()
+  const { openCart, openSearch, toggleMobileMenu, openAuth } = useUIStore()
+
+  const mainLinks = nav?.mainNav || [
+    { label: 'Women', link: '/shop?gender=women' },
+    { label: 'Men', link: '/shop?gender=men' },
+    { label: 'New In', link: '/shop?sort=newest' },
+    { label: 'Sale', link: '/shop?sale=true' },
+  ]
 
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-40 transition-all duration-300',
-        atTop ? 'bg-transparent' : 'bg-paper/90 backdrop-blur-md border-b border-stone/20'
-      )}
-    >
-      <div className="max-w-container mx-auto px-24 py-16 flex items-center justify-between">
-        <button onClick={toggleMobileMenu} className="lg:hidden" aria-label="Menu">
-          <Menu size={22} />
-        </button>
+    <header className="sticky top-0 left-0 right-0 z-40">
+      {/* Announcement Bar */}
+      <AnnouncementBar text="Free shipping on orders over $150" />
 
-        <nav className="hidden lg:flex items-center gap-32">
-          {(nav?.mainNav || [
-            { label: 'Women', link: '/shop?gender=women' },
-            { label: 'Men', link: '/shop?gender=men' },
-            { label: 'New In', link: '/shop?sort=newest' },
-            { label: 'Sale', link: '/shop?sale=true' },
-          ]).map((item, i) => (
-            <Link
-              key={i}
-              href={item.link || '#'}
-              className="font-mono text-[11px] uppercase tracking-widest hover:text-stone transition-colors"
+      {/* Main Header */}
+      <div className="bg-[var(--color-nt-white)] border-b border-[var(--color-nt-light-gray)]">
+        <div className="max-w-container mx-auto px-4 sm:px-8 h-[56px] flex items-center justify-between">
+          {/* Left: Mobile icons + Desktop Nav */}
+          <div className="flex items-center gap-1 lg:gap-4">
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={toggleMobileMenu}
+              className="lg:hidden flex flex-col gap-[5px] cursor-pointer p-2 -ml-2"
+              aria-label="Menu"
             >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+              <span className="block w-[22px] h-[1.5px] bg-[var(--color-nt-black)] rounded-[1px]" />
+              <span className="block w-[22px] h-[1.5px] bg-[var(--color-nt-black)] rounded-[1px]" />
+              <span className="block w-[22px] h-[1.5px] bg-[var(--color-nt-black)] rounded-[1px]" />
+            </button>
 
-        <Link href="/" className="font-display text-[24px] tracking-wider absolute left-1/2 -translate-x-1/2">
-          NOVA THREADS
-        </Link>
+            {/* Mobile Search - only visible on mobile, left of logo */}
+            <button
+              onClick={openSearch}
+              aria-label="Search"
+              className="lg:hidden cursor-pointer text-[var(--color-nt-black)] opacity-80 hover:opacity-100 transition-opacity duration-150 p-2"
+            >
+              <Search size={20} strokeWidth={1.5} />
+            </button>
 
-        <div className="flex items-center gap-20">
-          <button onClick={openSearch} aria-label="Search" className="hover:text-stone transition-colors">
-            <Search size={20} />
-          </button>
-          <Link href="/account" aria-label="Account" className="hidden sm:block hover:text-stone transition-colors">
-            <User size={20} />
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-6">
+              {mainLinks.map((item, i) => (
+                <Link
+                  key={i}
+                  href={item.link || '#'}
+                  className="text-[13px] font-medium uppercase tracking-[0.04em] text-[var(--color-nt-black)] hover:opacity-60 transition-opacity duration-150 cursor-pointer"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Center: Logo */}
+          <Link
+            href="/"
+            className="text-[18px] sm:text-[22px] font-bold tracking-[-0.02em] uppercase text-[var(--color-nt-black)] absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity duration-150 cursor-pointer"
+          >
+            NOVA THREADS
           </Link>
-          <Link href="/account/wishlist" aria-label="Wishlist" className="hidden sm:block hover:text-stone transition-colors">
-            <Heart size={20} />
-          </Link>
-          <button onClick={openCart} aria-label="Cart" className="relative hover:text-stone transition-colors">
-            <ShoppingBag size={20} />
-            {count > 0 && (
-              <span className="absolute -top-4 -right-8 bg-signal text-paper text-[10px] font-mono rounded-full w-16 h-16 flex items-center justify-center">
-                {count}
+
+          {/* Right: Icons */}
+          <div className="flex items-center gap-1 sm:gap-4">
+            {/* Desktop Search - hidden on mobile */}
+            <button
+              onClick={openSearch}
+              aria-label="Search"
+              className="hidden lg:block cursor-pointer text-[var(--color-nt-black)] opacity-80 hover:opacity-100 transition-opacity duration-150 p-2"
+            >
+              <Search size={20} strokeWidth={1.5} />
+            </button>
+
+            {/* Account - visible on all screens */}
+            <button
+              onClick={openAuth}
+              aria-label="Account"
+              className="cursor-pointer text-[var(--color-nt-black)] opacity-80 hover:opacity-100 transition-opacity duration-150 p-2"
+            >
+              <User size={20} strokeWidth={1.5} />
+            </button>
+
+            {/* Cart - visible on all screens with count badge */}
+            <button
+              onClick={openCart}
+              aria-label="Cart"
+              className="relative cursor-pointer text-[var(--color-nt-black)] hover:opacity-80 transition-opacity duration-150 p-2"
+            >
+              <ShoppingBag size={20} strokeWidth={1.5} />
+              <span className="absolute -top-0.5 -right-0.5 bg-[var(--color-nt-black)] text-[var(--color-nt-white)] text-[9px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1">
+                {count || 0}
               </span>
-            )}
-          </button>
+            </button>
+          </div>
         </div>
       </div>
     </header>
