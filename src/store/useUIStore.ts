@@ -13,6 +13,7 @@ interface UIState {
   mobileMenuOpen: boolean
   searchOpen: boolean
   authOpen: boolean
+  promoOpen: boolean
   quickViewProductId: string | null
   toasts: Toast[]
   openCart: () => void
@@ -22,6 +23,8 @@ interface UIState {
   closeSearch: () => void
   openAuth: () => void
   closeAuth: () => void
+  openPromo: () => void
+  closePromo: () => void
   openQuickView: (id: string) => void
   closeQuickView: () => void
   pushToast: (toast: Omit<Toast, 'id'>) => void
@@ -33,6 +36,7 @@ export const useUIStore = create<UIState>((set) => ({
   mobileMenuOpen: false,
   searchOpen: false,
   authOpen: false,
+  promoOpen: false,
   quickViewProductId: null,
   toasts: [],
   openCart: () => set({ cartOpen: true }),
@@ -42,6 +46,8 @@ export const useUIStore = create<UIState>((set) => ({
   closeSearch: () => set({ searchOpen: false }),
   openAuth: () => set({ authOpen: true }),
   closeAuth: () => set({ authOpen: false }),
+  openPromo: () => set({ promoOpen: true }),
+  closePromo: () => set({ promoOpen: false }),
   openQuickView: (id) => set({ quickViewProductId: id }),
   closeQuickView: () => set({ quickViewProductId: null }),
   pushToast: (toast) =>

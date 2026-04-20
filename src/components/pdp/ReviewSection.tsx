@@ -2,8 +2,23 @@
 import { useState } from 'react'
 import { Star } from 'lucide-react'
 
+interface Review {
+  id?: string
+  rating?: number
+  title?: string
+  body?: string
+  authorName?: string
+  createdAt?: string
+  verified?: boolean
+}
+
+interface ReviewSectionProps {
+  product?: any
+  reviews?: Review[]
+}
+
 // Mock reviews for demo
-const MOCK_REVIEWS = [
+const MOCK_REVIEWS: Review[] = [
   {
     id: 'r1',
     rating: 5,
@@ -51,9 +66,9 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-export function ReviewSection() {
+export function ReviewSection({ reviews: propReviews }: ReviewSectionProps) {
   const [showForm, setShowForm] = useState(false)
-  const reviews = MOCK_REVIEWS
+  const reviews = propReviews && propReviews.length > 0 ? propReviews : MOCK_REVIEWS
   const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length || 0
   const total = reviews.length
 

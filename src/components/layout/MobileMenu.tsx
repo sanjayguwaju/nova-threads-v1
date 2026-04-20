@@ -340,7 +340,7 @@ export function MobileMenu() {
                   <div className="relative w-full aspect-[16/7] overflow-hidden">
                     <Image
                       src={submenuData.featureImage}
-                      alt={activeSubmenu}
+                      alt={activeSubmenu || 'Category'}
                       fill
                       className="object-cover"
                     />

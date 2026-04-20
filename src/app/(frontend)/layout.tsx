@@ -12,6 +12,7 @@ import { MobileMenu } from '@/components/layout/MobileMenu'
 import { SearchOverlay } from '@/components/layout/SearchOverlay'
 import { AuthModal } from '@/components/layout/AuthModal'
 import { CartDrawer } from '@/components/layout/CartDrawer'
+import { PromoModal } from '@/components/layout/PromoModal'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -49,6 +50,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             <SearchOverlay />
             <AuthModal />
             <CartDrawer />
+            <PromoModal />
           </TooltipProvider>
         </QueryProvider>
       </body>

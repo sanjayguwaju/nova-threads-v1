@@ -55,13 +55,17 @@ export function CheckoutForm({ user }: { user: any }) {
           <div className="space-y-24">
             <h2 className="font-display text-[32px]">Contact & Address</h2>
             {!user && (
-              <Input
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <div className="space-y-1">
+                <label className="block text-[13px] font-medium text-[var(--color-nt-black)]">
+                  Email *
+                </label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             )}
             <AddressForm
               onSubmit={(addr) => {
