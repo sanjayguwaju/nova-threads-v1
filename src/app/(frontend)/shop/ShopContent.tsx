@@ -9,7 +9,6 @@ import { ProductSort } from '@/components/shop/ProductSort'
 import { ProductGrid } from '@/components/shop/ProductGrid'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useProducts, buildProductFilters, useCategories } from '@/lib/hooks'
-import { getMockProducts, getMockCategories } from '@/lib/mock/products'
 import { cn } from '@/lib/utils'
 
 function ProductSkeleton() {
@@ -35,20 +34,9 @@ export function ShopContent() {
   const { data: productsData, isLoading: productsLoading } = useProducts(filters)
   const { data: categoriesData, isLoading: categoriesLoading } = useCategories()
 
-  // Use mock data as fallback when API returns empty
-  const products = useMemo(() => {
-    if (productsData?.docs && productsData.docs.length > 0) {
-      return productsData
-    }
-    return getMockProducts()
-  }, [productsData])
-
-  const categories = useMemo(() => {
-    if (categoriesData?.docs && categoriesData.docs.length > 0) {
-      return categoriesData
-    }
-    return getMockCategories()
-  }, [categoriesData])
+  // Use only real CMS data
+  const products = productsData
+  const categories = categoriesData
 
   // Count active filters
   const activeFilterCount = ['gender', 'size', 'color', 'category', 'minPrice', 'maxPrice'].filter(

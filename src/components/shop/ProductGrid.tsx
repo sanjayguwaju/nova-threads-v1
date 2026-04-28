@@ -2,9 +2,10 @@
 
 import { motion } from 'framer-motion'
 import { ProductCard } from './ProductCard'
+import type { Product } from '@/payload-types'
 
 interface ProductGridProps {
-  products: any[]
+  products: Product[]
   viewMode?: 'grid' | 'list'
 }
 

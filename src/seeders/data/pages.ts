@@ -1,0 +1,121 @@
+export const homePageData = {
+  title: 'Home',
+  slug: 'home',
+  status: 'published',
+  layout: [
+    {
+      blockType: 'hero',
+      slides: [
+        {
+          headline: 'Timeless style for modern lives',
+          subheadline: 'Autumn/Winter collection now available',
+          cta: 'Shop Now',
+          link: '/shop',
+          image: null, // Will use placeholder
+        },
+        {
+          headline: 'Quiet luxury essentials',
+          subheadline: 'Sustainably crafted for everyday wear',
+          cta: 'Explore',
+          link: '/shop',
+          image: null,
+        },
+        {
+          headline: 'Made to last',
+          subheadline: 'Investment pieces for your wardrobe',
+          cta: 'Discover',
+          link: '/shop',
+          image: null,
+        },
+      ],
+      autoplay: true,
+      autoplayDelay: 6000,
+    },
+    {
+      blockType: 'featuredCategories',
+      title: 'Shop by Category',
+      subtitle: 'Explore our curated collections',
+      categories: [], // Will be populated with actual category IDs
+      showViewAll: true,
+      viewAllText: 'View All Categories',
+      viewAllLink: '/shop',
+    },
+    {
+      blockType: 'productRail',
+      title: 'Featured Products',
+      products: [], // Will be populated with actual product IDs
+      showGenderFilter: true,
+      showViewAll: true,
+      viewAllText: 'View All',
+      viewAllLink: '/shop',
+    },
+    {
+      blockType: 'brandStory',
+      sectionLabel: 'Our Philosophy',
+      headline: 'Fewer, finer things — designed to be lived in, loved for years',
+      description: 'NOVA THREADS is a studio making considered clothes from natural materials, with transparent pricing and fair production. Every piece is made to last, designed to transcend seasons and trends.',
+      image: null,
+      stats: [
+        { value: '100%', label: 'Natural materials' },
+        { value: 'Fair', label: 'Production' },
+        { value: 'Timeless', label: 'Design' },
+      ],
+      ctaText: 'Our Story',
+      ctaLink: '/about',
+      imagePosition: 'left',
+    },
+    {
+      blockType: 'newsletter',
+      sectionLabel: 'Newsletter',
+      headline: 'Join The Studio',
+      subheadline: 'Subscribe for exclusive previews, essays on mindful style, and 10% off your first order.',
+      placeholder: 'Enter your email address',
+      buttonText: 'Join Now',
+      mobileButtonText: 'Subscribe',
+      privacyText: 'By subscribing, you agree to receive marketing emails. Unsubscribe anytime.',
+      successHeadline: 'Welcome to the Studio',
+      successMessage: 'Check your inbox for 10% off your first order.',
+      trustBadges: [
+        { text: 'No spam, ever' },
+        { text: 'Unsubscribe anytime' },
+        { text: '10% off first order' },
+      ],
+    },
+    {
+      blockType: 'testimonials',
+      title: 'What customers say',
+      testimonials: [
+        {
+          author: 'Clara M.',
+          location: 'New York, NY',
+          body: "The wool coat is extraordinary. Quality feels pre-fast-fashion — like my grandmother's wardrobe. Every detail is considered.",
+          rating: 5,
+          verified: true,
+          date: '2 weeks ago',
+        },
+        {
+          author: 'Jonas T.',
+          location: 'Berlin, Germany',
+          body: 'Clean cuts, honest materials. Three years in and still looks new. This is what mindful consumption should look like.',
+          rating: 5,
+          verified: true,
+          date: '1 month ago',
+        },
+        {
+          author: 'Aya S.',
+          location: 'Tokyo, Japan',
+          body: 'The newsletter writing made me buy. The clothes made me stay. Every piece tells a story of craftsmanship and care.',
+          rating: 5,
+          verified: true,
+          date: '3 weeks ago',
+        },
+      ],
+      autoplay: true,
+      autoplayDelay: 6000,
+    },
+  ],
+  seo: {
+    metaTitle: 'NOVA THREADS | Timeless Style for Modern Lives',
+    metaDescription: 'Discover premium, sustainable fashion at NOVA THREADS. Shop our curated collection of timeless pieces designed to last.',
+  },
+}

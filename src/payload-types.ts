@@ -75,6 +75,7 @@ export interface Config {
     coupons: Coupon;
     tags: Tag;
     media: Media;
+    pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +91,7 @@ export interface Config {
     coupons: CouponsSelect<false> | CouponsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -102,10 +104,12 @@ export interface Config {
   globals: {
     'site-settings': SiteSetting;
     navigation: Navigation;
+    'top-bar': TopBar;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
+    'top-bar': TopBarSelect<false> | TopBarSelect<true>;
   };
   locale: null;
   widgets: {
@@ -219,7 +223,7 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    hero?: {
+    tablet?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -236,8 +240,10 @@ export interface Media {
 export interface Product {
   id: string;
   name: string;
-  slug?: string | null;
-  description?: {
+  slug: string;
+  sku?: string | null;
+  shortDescription?: string | null;
+  longDescription?: {
     root: {
       type: string;
       children: {
@@ -252,11 +258,8 @@ export interface Product {
     };
     [k: string]: unknown;
   } | null;
-  shortDescription?: string | null;
-  category?: (string | null) | Category;
-  brand?: string | null;
+  category: string | Category;
   tags?: (string | Tag)[] | null;
-  gender?: ('men' | 'women' | 'unisex' | 'kids') | null;
   variants?:
     | {
         sku: string;
@@ -270,48 +273,26 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
-  mainImage?: (string | null) | Media;
-  gallery?: (string | Media)[] | null;
-  materials?:
-    | {
-        material?: string | null;
-        percentage?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  careInstructions?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  features?:
-    | {
-        feature?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  isNew?: boolean | null;
-  isFeatured?: boolean | null;
-  isBestSeller?: boolean | null;
+  images?: (string | Media)[] | null;
+  price: number;
+  compareAtPrice?: number | null;
+  costPerItem?: number | null;
+  brand?: string | null;
+  material?: string | null;
+  careInstructions?: string | null;
+  gender?: ('unisex' | 'men' | 'women' | 'kids') | null;
   status?: ('draft' | 'published' | 'archived') | null;
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    ogImage?: (string | null) | Media;
+  featured?: boolean | null;
+  weight?: number | null;
+  dimensions?: {
+    length?: number | null;
+    width?: number | null;
+    height?: number | null;
   };
   averageRating?: number | null;
   reviewCount?: number | null;
-  publishedAt?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -324,10 +305,10 @@ export interface Category {
   name: string;
   slug?: string | null;
   description?: string | null;
-  parent?: (string | null) | Category;
   image?: (string | null) | Media;
-  order?: number | null;
+  parent?: (string | null) | Category;
   featuredOnHome?: boolean | null;
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -356,20 +337,20 @@ export interface Order {
     | {
         product?: (string | null) | Product;
         variantSku?: string | null;
-        variantLabel?: string | null;
         quantity?: number | null;
-        unitPrice?: number | null;
-        totalPrice?: number | null;
+        price?: number | null;
+        total?: number | null;
         id?: string | null;
       }[]
     | null;
   subtotal?: number | null;
-  discount?: number | null;
-  shipping?: number | null;
+  shippingCost?: number | null;
   tax?: number | null;
+  discount?: number | null;
   total?: number | null;
-  coupon?: (string | null) | Coupon;
-  status?: ('pending' | 'payment_failed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded') | null;
+  currency?: string | null;
+  status?: ('pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded') | null;
+  paymentStatus?: ('pending' | 'paid' | 'failed' | 'refunded') | null;
   shippingAddress?: {
     firstName?: string | null;
     lastName?: string | null;
@@ -392,18 +373,29 @@ export interface Order {
     country?: string | null;
     phone?: string | null;
   };
-  stripePaymentIntentId?: string | null;
-  stripeSessionId?: string | null;
+  shippingMethod?: string | null;
   trackingNumber?: string | null;
   notes?: string | null;
-  timeline?:
-    | {
-        status?: string | null;
-        timestamp?: string | null;
-        note?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  couponCode?: string | null;
+  stripePaymentIntentId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: string;
+  product: string | Product;
+  author: string | User;
+  rating: number;
+  title?: string | null;
+  body?: string | null;
+  verified?: boolean | null;
+  images?: (string | Media)[] | null;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  helpfulCount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -428,19 +420,125 @@ export interface Coupon {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "reviews".
+ * via the `definition` "pages".
  */
-export interface Review {
+export interface Page {
   id: string;
-  product: string | Product;
-  author: string | User;
-  rating: number;
-  title?: string | null;
-  body?: string | null;
-  verified?: boolean | null;
-  images?: (string | Media)[] | null;
-  status?: ('pending' | 'approved' | 'rejected') | null;
-  helpfulCount?: number | null;
+  title: string;
+  slug: string;
+  status?: ('draft' | 'published' | 'archived') | null;
+  layout?:
+    | (
+        | {
+            slides?:
+              | {
+                  headline: string;
+                  subheadline?: string | null;
+                  cta?: string | null;
+                  link?: string | null;
+                  image?: (string | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            autoplay?: boolean | null;
+            autoplayDelay?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            categories?:
+              | {
+                  category: string | Category;
+                  overrideImage?: (string | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            showViewAll?: boolean | null;
+            viewAllText?: string | null;
+            viewAllLink?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featuredCategories';
+          }
+        | {
+            title: string;
+            products: (string | Product)[];
+            showGenderFilter?: boolean | null;
+            showViewAll?: boolean | null;
+            viewAllText?: string | null;
+            viewAllLink?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'productRail';
+          }
+        | {
+            sectionLabel?: string | null;
+            headline: string;
+            description?: string | null;
+            image?: (string | null) | Media;
+            stats?:
+              | {
+                  value: string;
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            ctaText?: string | null;
+            ctaLink?: string | null;
+            imagePosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'brandStory';
+          }
+        | {
+            sectionLabel?: string | null;
+            headline?: string | null;
+            subheadline?: string | null;
+            placeholder?: string | null;
+            buttonText?: string | null;
+            mobileButtonText?: string | null;
+            privacyText?: string | null;
+            successHeadline?: string | null;
+            successMessage?: string | null;
+            trustBadges?:
+              | {
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'newsletter';
+          }
+        | {
+            title?: string | null;
+            testimonials?:
+              | {
+                  author: string;
+                  location: string;
+                  body: string;
+                  rating?: number | null;
+                  verified?: boolean | null;
+                  date?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            autoplay?: boolean | null;
+            autoplayDelay?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+      )[]
+    | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (string | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -499,6 +597,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: string | Page;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -594,12 +696,11 @@ export interface UsersSelect<T extends boolean = true> {
 export interface ProductsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
-  description?: T;
+  sku?: T;
   shortDescription?: T;
+  longDescription?: T;
   category?: T;
-  brand?: T;
   tags?: T;
-  gender?: T;
   variants?:
     | T
     | {
@@ -613,36 +714,28 @@ export interface ProductsSelect<T extends boolean = true> {
         images?: T;
         id?: T;
       };
-  mainImage?: T;
-  gallery?: T;
-  materials?:
-    | T
-    | {
-        material?: T;
-        percentage?: T;
-        id?: T;
-      };
+  images?: T;
+  price?: T;
+  compareAtPrice?: T;
+  costPerItem?: T;
+  brand?: T;
+  material?: T;
   careInstructions?: T;
-  features?:
-    | T
-    | {
-        feature?: T;
-        id?: T;
-      };
-  isNew?: T;
-  isFeatured?: T;
-  isBestSeller?: T;
+  gender?: T;
   status?: T;
-  seo?:
+  featured?: T;
+  weight?: T;
+  dimensions?:
     | T
     | {
-        metaTitle?: T;
-        metaDescription?: T;
-        ogImage?: T;
+        length?: T;
+        width?: T;
+        height?: T;
       };
   averageRating?: T;
   reviewCount?: T;
-  publishedAt?: T;
+  metaTitle?: T;
+  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -654,10 +747,10 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   description?: T;
-  parent?: T;
   image?: T;
-  order?: T;
+  parent?: T;
   featuredOnHome?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -674,19 +767,19 @@ export interface OrdersSelect<T extends boolean = true> {
     | {
         product?: T;
         variantSku?: T;
-        variantLabel?: T;
         quantity?: T;
-        unitPrice?: T;
-        totalPrice?: T;
+        price?: T;
+        total?: T;
         id?: T;
       };
   subtotal?: T;
-  discount?: T;
-  shipping?: T;
+  shippingCost?: T;
   tax?: T;
+  discount?: T;
   total?: T;
-  coupon?: T;
+  currency?: T;
   status?: T;
+  paymentStatus?: T;
   shippingAddress?:
     | T
     | {
@@ -713,18 +806,11 @@ export interface OrdersSelect<T extends boolean = true> {
         country?: T;
         phone?: T;
       };
-  stripePaymentIntentId?: T;
-  stripeSessionId?: T;
+  shippingMethod?: T;
   trackingNumber?: T;
   notes?: T;
-  timeline?:
-    | T
-    | {
-        status?: T;
-        timestamp?: T;
-        note?: T;
-        id?: T;
-      };
+  couponCode?: T;
+  stripePaymentIntentId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -815,7 +901,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        hero?:
+        tablet?:
           | T
           | {
               url?: T;
@@ -826,6 +912,137 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              slides?:
+                | T
+                | {
+                    headline?: T;
+                    subheadline?: T;
+                    cta?: T;
+                    link?: T;
+                    image?: T;
+                    id?: T;
+                  };
+              autoplay?: T;
+              autoplayDelay?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featuredCategories?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              categories?:
+                | T
+                | {
+                    category?: T;
+                    overrideImage?: T;
+                    id?: T;
+                  };
+              showViewAll?: T;
+              viewAllText?: T;
+              viewAllLink?: T;
+              id?: T;
+              blockName?: T;
+            };
+        productRail?:
+          | T
+          | {
+              title?: T;
+              products?: T;
+              showGenderFilter?: T;
+              showViewAll?: T;
+              viewAllText?: T;
+              viewAllLink?: T;
+              id?: T;
+              blockName?: T;
+            };
+        brandStory?:
+          | T
+          | {
+              sectionLabel?: T;
+              headline?: T;
+              description?: T;
+              image?: T;
+              stats?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              ctaText?: T;
+              ctaLink?: T;
+              imagePosition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        newsletter?:
+          | T
+          | {
+              sectionLabel?: T;
+              headline?: T;
+              subheadline?: T;
+              placeholder?: T;
+              buttonText?: T;
+              mobileButtonText?: T;
+              privacyText?: T;
+              successHeadline?: T;
+              successMessage?: T;
+              trustBadges?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              title?: T;
+              testimonials?:
+                | T
+                | {
+                    author?: T;
+                    location?: T;
+                    body?: T;
+                    rating?: T;
+                    verified?: T;
+                    date?: T;
+                    id?: T;
+                  };
+              autoplay?: T;
+              autoplayDelay?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -976,6 +1193,35 @@ export interface Navigation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "top-bar".
+ */
+export interface TopBar {
+  id: string;
+  enabled?: boolean | null;
+  socialLinks?:
+    | {
+        platform: 'instagram' | 'tiktok' | 'facebook' | 'twitter' | 'youtube';
+        url: string;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  offers?:
+    | {
+        text: string;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  showContactLink?: boolean | null;
+  contactLinkText?: string | null;
+  contactLinkUrl?: string | null;
+  followUsText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -1053,6 +1299,35 @@ export interface NavigationSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "top-bar_select".
+ */
+export interface TopBarSelect<T extends boolean = true> {
+  enabled?: T;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  offers?:
+    | T
+    | {
+        text?: T;
+        link?: T;
+        id?: T;
+      };
+  showContactLink?: T;
+  contactLinkText?: T;
+  contactLinkUrl?: T;
+  followUsText?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

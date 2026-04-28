@@ -7,9 +7,10 @@ import { Heart, Eye } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils/formatCurrency'
 import { useWishlistStore } from '@/store/useWishlistStore'
 import { cn } from '@/lib/utils'
+import type { Product } from '@/payload-types'
 
 interface ProductCardProps {
-  product: any
+  product: Product
   priority?: boolean
   showQuickActions?: boolean
 }
@@ -23,16 +24,18 @@ export function ProductCard({
   const [hover, setHover] = useState(false)
   const wished = has(product.id)
 
-  const firstVariant = product.variants?.[0] || {}
-  const price = firstVariant.price ?? 0
-  const compareAt = firstVariant.compareAtPrice
+  const firstVariant = product.variants?.[0]
+  const price = firstVariant?.price ?? product.price ?? 0
+  const compareAt = firstVariant?.compareAtPrice ?? product.compareAtPrice
   const onSale = compareAt && compareAt > price
 
-  const primaryImg = product.mainImage?.sizes?.card?.url || product.mainImage?.url
-  const secondaryImg = product.gallery?.[0]?.sizes?.card?.url || product.gallery?.[0]?.url
-  const lowStock = product.variants?.every((v: any) => (v.stock ?? 0) < 5)
+  const firstImage = product.images?.[0]
+  const primaryImg = typeof firstImage === 'object' ? firstImage?.url : firstImage
+  const secondImage = product.images?.[1]
+  const secondaryImg = typeof secondImage === 'object' ? secondImage?.url : secondImage
+  const lowStock = product.variants?.every((v) => (v.stock ?? 0) < 5)
   const colors =
-    product.variants?.slice(0, 5).map((v: any) => ({ color: v.color, hex: v.colorHex })) || []
+    product.variants?.slice(0, 5).map((v) => ({ color: v.color, hex: v.colorHex })) || []
 
   return (
     <div
@@ -72,9 +75,9 @@ export function ProductCard({
 
           {/* Badges - Top Left */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-            {product.isNew && (
+            {product.featured && (
               <span className="border border-[var(--color-nt-black)] bg-[var(--color-nt-white)] text-[var(--color-nt-black)] text-[10px] font-bold uppercase tracking-wider px-2 py-1">
-                New
+                Featured
               </span>
             )}
             {onSale && (
@@ -82,7 +85,7 @@ export function ProductCard({
                 Sale
               </span>
             )}
-            {lowStock && !product.isNew && !onSale && (
+            {lowStock && !product.featured && !onSale && (
               <span className="bg-[var(--color-nt-mid-gray)] text-[var(--color-nt-white)] text-[10px] font-bold uppercase tracking-wider px-2 py-1">
                 Low Stock
               </span>
@@ -175,10 +178,10 @@ export function ProductCard({
         {/* Color Swatches */}
         {colors.length > 0 && (
           <div className="flex items-center gap-1.5 pt-1">
-            {colors.slice(0, 4).map((c: any, i: number) => (
+            {colors.slice(0, 4).map((c, i) => (
               <span
                 key={i}
-                title={c.color}
+                title={c.color || ''}
                 className="w-4 h-4 border border-[var(--color-nt-light-gray)] flex-shrink-0"
                 style={{ background: c.hex || '#ccc' }}
               />

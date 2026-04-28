@@ -1,6 +1,8 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import type { TopBar as TopBarType } from '@/payload-types'
 
 // Custom Social Media Icons
 function InstagramIcon({ size = 16 }: { size?: number }) {
@@ -54,20 +56,53 @@ function TikTokIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-export function TopBar() {
-  const socialLinks = [
-    { icon: InstagramIcon, href: 'https://instagram.com', label: 'Instagram' },
-    { icon: TikTokIcon, href: 'https://tiktok.com', label: 'TikTok' },
-    { icon: FacebookIcon, href: 'https://facebook.com', label: 'Facebook' },
-    { icon: TwitterIcon, href: 'https://twitter.com', label: 'Twitter' },
-    { icon: YoutubeIcon, href: 'https://youtube.com', label: 'YouTube' },
-  ]
+const iconMap = {
+  instagram: InstagramIcon,
+  tiktok: TikTokIcon,
+  facebook: FacebookIcon,
+  twitter: TwitterIcon,
+  youtube: YoutubeIcon,
+}
 
-  const offers = [
-    'FREE SHIPPING ON ORDERS OVER $150',
-    'USE CODE SAVE20 FOR 20% OFF',
-    'NEW ARRIVALS EVERY WEEK',
-  ]
+interface TopBarProps {
+  data?: TopBarType
+  fetchFromCMS?: boolean
+}
+
+async function fetchTopBar(): Promise<TopBarType | null> {
+  try {
+    const res = await fetch('/api/globals/top-bar')
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export function TopBar({ data: propData, fetchFromCMS = false }: TopBarProps) {
+  const [cmsData, setCmsData] = useState<TopBarType | null>(null)
+
+  useEffect(() => {
+    if (fetchFromCMS) {
+      fetchTopBar().then(setCmsData)
+    }
+  }, [fetchFromCMS])
+
+  const data = fetchFromCMS ? cmsData : propData
+
+  if (data?.enabled === false) return null
+
+  const socialLinks = data?.socialLinks?.length
+    ? data.socialLinks.map((link) => ({
+        icon: iconMap[link.platform],
+        href: link.url,
+        label: link.label || link.platform,
+      }))
+    : []
+
+  const offers = data?.offers?.length ? data.offers : []
+
+  if (!socialLinks.length && !offers.length) return null
 
   return (
     <div className="bg-[var(--color-nt-black)] text-[var(--color-nt-white)]">
@@ -76,7 +111,7 @@ export function TopBar() {
         {/* Social Links - Left */}
         <div className="flex items-center gap-4">
           <span className="text-[11px] uppercase tracking-wider text-[var(--color-nt-mid-gray)] hidden md:block">
-            Follow Us
+            {data?.followUsText || 'Follow Us'}
           </span>
           {socialLinks.map((social) => (
             <Link
@@ -99,18 +134,20 @@ export function TopBar() {
               key={i}
               className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-nt-white)]"
             >
-              {offer}
+              {offer.text}
             </span>
           ))}
         </div>
 
         {/* Contact - Right */}
-        <Link
-          href="/contact"
-          className="text-[11px] uppercase tracking-wider text-[var(--color-nt-mid-gray)] hover:text-[var(--color-nt-white)] transition-colors duration-200 hidden lg:block"
-        >
-          Contact Us
-        </Link>
+        {data?.showContactLink !== false && (
+          <Link
+            href={data?.contactLinkUrl || '/contact'}
+            className="text-[11px] uppercase tracking-wider text-[var(--color-nt-mid-gray)] hover:text-[var(--color-nt-white)] transition-colors duration-200 hidden lg:block"
+          >
+            {data?.contactLinkText || 'Contact Us'}
+          </Link>
+        )}
       </div>
 
       {/* Mobile - Scrolling Marquee */}
@@ -121,7 +158,7 @@ export function TopBar() {
               key={i}
               className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-nt-white)] mx-8"
             >
-              {offer}
+              {offer.text}
             </span>
           ))}
         </div>

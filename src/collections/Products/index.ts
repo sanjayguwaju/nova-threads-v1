@@ -1,0 +1,68 @@
+import type { CollectionConfig } from 'payload'
+
+export const Products: CollectionConfig = {
+  slug: 'products',
+  admin: {
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'sku', 'price', 'status', 'featured'],
+  },
+  access: {
+    read: () => true,
+    create: ({ req: { user } }) => user?.role === 'admin',
+    update: ({ req: { user } }) => user?.role === 'admin',
+    delete: ({ req: { user } }) => user?.role === 'admin',
+  },
+  fields: [
+    { name: 'name', type: 'text', required: true },
+    { name: 'slug', type: 'text', unique: true, required: true },
+    { name: 'sku', type: 'text', unique: true },
+    { name: 'shortDescription', type: 'textarea' },
+    { name: 'longDescription', type: 'richText' },
+    { name: 'category', type: 'relationship', relationTo: 'categories', required: true },
+    { name: 'tags', type: 'relationship', relationTo: 'tags', hasMany: true },
+    {
+      name: 'variants',
+      type: 'array',
+      fields: [
+        { name: 'sku', type: 'text', required: true },
+        { name: 'size', type: 'select', options: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size'] },
+        { name: 'color', type: 'text' },
+        { name: 'colorHex', type: 'text' },
+        { name: 'stock', type: 'number', defaultValue: 0 },
+        { name: 'price', type: 'number', required: true },
+        { name: 'compareAtPrice', type: 'number' },
+        { name: 'images', type: 'upload', relationTo: 'media', hasMany: true },
+      ],
+    },
+    { name: 'images', type: 'upload', relationTo: 'media', hasMany: true },
+    { name: 'price', type: 'number', required: true },
+    { name: 'compareAtPrice', type: 'number' },
+    { name: 'costPerItem', type: 'number', admin: { readOnly: true } },
+    { name: 'brand', type: 'text' },
+    { name: 'material', type: 'text' },
+    { name: 'careInstructions', type: 'textarea' },
+    {
+      name: 'gender',
+      type: 'select',
+      options: ['unisex', 'men', 'women', 'kids'],
+      defaultValue: 'unisex',
+    },
+    {
+      name: 'status',
+      type: 'select',
+      options: ['draft', 'published', 'archived'],
+      defaultValue: 'draft',
+    },
+    { name: 'featured', type: 'checkbox', defaultValue: false },
+    { name: 'weight', type: 'number' },
+    { name: 'dimensions', type: 'group', fields: [
+      { name: 'length', type: 'number' },
+      { name: 'width', type: 'number' },
+      { name: 'height', type: 'number' },
+    ]},
+    { name: 'averageRating', type: 'number', admin: { readOnly: true } },
+    { name: 'reviewCount', type: 'number', defaultValue: 0, admin: { readOnly: true } },
+    { name: 'metaTitle', type: 'text' },
+    { name: 'metaDescription', type: 'textarea' },
+  ],
+}

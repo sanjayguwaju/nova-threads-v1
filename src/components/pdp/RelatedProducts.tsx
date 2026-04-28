@@ -2,8 +2,9 @@
 
 import { ProductCard } from '../shop/ProductCard'
 import { motion } from 'framer-motion'
+import type { Product } from '@/payload-types'
 
-export function RelatedProducts({ products }: { products: any[] }) {
+export function RelatedProducts({ products }: { products: Product[] }) {
   if (!products?.length) return null
 
   return (

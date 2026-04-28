@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { X, ChevronRight, ChevronLeft, ArrowLeft } from 'lucide-react'
@@ -8,176 +8,71 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useUIStore } from '@/store/useUIStore'
 import { User, UserPlus } from 'lucide-react'
 
-const LINKS = [
-  { label: 'Home', link: '/' },
-  { label: 'Women', link: '/shop?gender=women', hasChildren: true },
-  { label: 'Men', link: '/shop?gender=men', hasChildren: true },
-  { label: 'New In', link: '/shop?sort=newest', hasChildren: true },
-  { label: 'Sale', link: '/shop?sale=true' },
-  { label: 'Wishlist', link: '/account/wishlist' },
-]
+import type { Navigation, Category } from '@/payload-types'
 
-// Category data for submenus
-const CATEGORY_DATA: Record<
-  string,
-  {
-    featureImage: string
-    sections: { title: string; items: { name: string; image: string }[] }[]
-  }
-> = {
-  Women: {
-    featureImage:
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=200&fit=crop',
-    sections: [
-      {
-        title: 'Top Rated',
-        items: [
-          {
-            name: 'Sport Outfit',
-            image:
-              'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Dress',
-            image:
-              'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Suit',
-            image:
-              'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=200&h=200&fit=crop',
-          },
-        ],
-      },
-      {
-        title: 'Bags & Accessories',
-        items: [
-          {
-            name: 'Blazero',
-            image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Congue',
-            image:
-              'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Cosmopolis',
-            image:
-              'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Scarvero',
-            image:
-              'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Glamos',
-            image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Valkyrio',
-            image:
-              'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=200&h=200&fit=crop',
-          },
-        ],
-      },
-      {
-        title: 'Clothing',
-        items: [
-          {
-            name: 'Swimwear',
-            image:
-              'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Underwear',
-            image:
-              'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Footwear',
-            image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=200&h=200&fit=crop',
-          },
-        ],
-      },
-    ],
-  },
-  Men: {
-    featureImage:
-      'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=600&h=200&fit=crop',
-    sections: [
-      {
-        title: 'Top Rated',
-        items: [
-          {
-            name: 'Shirt',
-            image:
-              'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Jacket',
-            image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Trousers',
-            image:
-              'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=200&h=200&fit=crop',
-          },
-        ],
-      },
-      {
-        title: 'Bags & Accessories',
-        items: [
-          {
-            name: 'Backpack',
-            image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Wallet',
-            image:
-              'https://images.unsplash.com/photo-1627123424574-181ce5171c98?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Belt',
-            image:
-              'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=200&h=200&fit=crop',
-          },
-        ],
-      },
-    ],
-  },
-  'New In': {
-    featureImage:
-      'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=200&fit=crop',
-    sections: [
-      {
-        title: 'New Arrivals',
-        items: [
-          {
-            name: 'Summer Collection',
-            image:
-              'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Limited Edition',
-            image:
-              'https://images.unsplash.com/photo-1445205170230-053b83016050?w=200&h=200&fit=crop',
-          },
-          {
-            name: 'Trending Now',
-            image:
-              'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop',
-          },
-        ],
-      },
-    ],
-  },
+interface MobileMenuProps {
+  navigation?: Navigation | null
+  fetchFromCMS?: boolean
 }
 
-export function MobileMenu() {
-  const { mobileMenuOpen, toggleMobileMenu, openAuth } = useUIStore()
+async function fetchNavigation(): Promise<Navigation | null> {
+  try {
+    const res = await fetch('/api/globals/navigation')
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+async function fetchCategories(): Promise<Category[]> {
+  try {
+    const res = await fetch('/api/categories?limit=20')
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.docs || []
+  } catch {
+    return []
+  }
+}
+
+export function MobileMenu({ navigation: propNavigation, fetchFromCMS = false }: MobileMenuProps) {
+  const [cmsNavigation, setCmsNavigation] = useState<Navigation | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (fetchFromCMS) {
+      fetchNavigation().then(setCmsNavigation)
+      fetchCategories().then(setCategories)
+    }
+  }, [fetchFromCMS])
+
+  const navigation = fetchFromCMS ? cmsNavigation : propNavigation
+
+  // Use mainNav from navigation or empty array
+  const mainLinks = navigation?.mainNav?.map(item => ({
+    label: item.label || '',
+    link: item.link || '#',
+    hasChildren: item.megaMenu && item.megaMenu.length > 0
+  })) || []
+
+  // Build category data from fetched categories
+  const categoryData = categories.reduce((acc, cat) => {
+    const imageUrl = typeof cat.image === 'object' ? cat.image?.url : ''
+    acc[cat.name] = {
+      featureImage: imageUrl || '',
+      sections: [{ title: 'Categories', items: categories.filter(c => c.parent === cat.id).map(c => ({
+        name: c.name,
+        image: typeof c.image === 'object' ? c.image?.url || '' : ''
+      })) }]
+    }
+    return acc
+  }, {} as Record<string, { featureImage: string; sections: { title: string; items: { name: string; image: string }[] }[] }>)
+
+  if (!mainLinks.length) return null
+
+  const submenuData = activeSubmenu ? categoryData[activeSubmenu] : null
 
   const handleClose = () => {
     toggleMobileMenu()
@@ -185,7 +80,7 @@ export function MobileMenu() {
   }
 
   const handleSubmenuClick = (label: string) => {
-    if (CATEGORY_DATA[label]) {
+    if (categoryData[label]) {
       setActiveSubmenu(label)
     }
   }
@@ -194,7 +89,7 @@ export function MobileMenu() {
     setActiveSubmenu(null)
   }
 
-  const submenuData = activeSubmenu ? CATEGORY_DATA[activeSubmenu] : null
+  const { mobileMenuOpen, toggleMobileMenu, openAuth } = useUIStore()
 
   return (
     <AnimatePresence>
@@ -245,11 +140,11 @@ export function MobileMenu() {
 
               {/* Menu List */}
               <nav className="flex flex-col">
-                {LINKS.map((link) => (
+                {mainLinks.map((link) => (
                   <div
                     key={link.label}
                     onClick={() =>
-                      link.hasChildren && CATEGORY_DATA[link.label]
+                      link.hasChildren && categoryData[link.label]
                         ? handleSubmenuClick(link.label)
                         : handleClose()
                     }
@@ -261,7 +156,7 @@ export function MobileMenu() {
                       </span>
                     </div>
                     <span>{link.label}</span>
-                    {link.hasChildren && CATEGORY_DATA[link.label] && (
+                    {link.hasChildren && categoryData[link.label] && (
                       <ChevronRight size={16} className="ml-auto text-[var(--color-nt-mid-gray)]" />
                     )}
                   </div>

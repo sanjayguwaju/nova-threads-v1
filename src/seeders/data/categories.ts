@@ -1,0 +1,58 @@
+export const categoriesData = [
+  {
+    name: 'T-Shirts',
+    description: 'Comfortable and stylish t-shirts for every occasion',
+    featuredOnHome: true,
+    order: 1,
+    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&h=1200&fit=crop',
+  },
+  {
+    name: 'Hoodies & Sweatshirts',
+    description: 'Cozy hoodies and sweatshirts for all seasons',
+    featuredOnHome: true,
+    order: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&h=1200&fit=crop',
+  },
+  {
+    name: 'Jackets & Coats',
+    description: 'Stylish outerwear to keep you warm',
+    featuredOnHome: true,
+    order: 3,
+    imageUrl: 'https://images.unsplash.com/photo-1551028919-ac76c9028d3e?w=800&h=1200&fit=crop',
+  },
+  {
+    name: 'Pants & Shorts',
+    description: 'Bottoms for every style and comfort',
+    featuredOnHome: false,
+    order: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&h=1200&fit=crop',
+  },
+  {
+    name: 'Dresses',
+    description: 'Elegant dresses for every occasion',
+    featuredOnHome: true,
+    order: 5,
+    imageUrl: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&h=1200&fit=crop',
+  },
+  {
+    name: 'Accessories',
+    description: 'Complete your look with our accessories',
+    featuredOnHome: false,
+    order: 6,
+    imageUrl: 'https://images.unsplash.com/photo-1611085583195-a48c1d5c1d9d?w=800&h=1200&fit=crop',
+  },
+  {
+    name: 'Footwear',
+    description: 'Shoes for every step of your journey',
+    featuredOnHome: false,
+    order: 7,
+    imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop',
+  },
+  {
+    name: 'Activewear',
+    description: 'Performance wear for your active lifestyle',
+    featuredOnHome: true,
+    order: 8,
+    imageUrl: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&h=1200&fit=crop',
+  },
+]

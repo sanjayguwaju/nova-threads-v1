@@ -5,65 +5,38 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const TESTIMONIALS = [
-  {
-    id: 1,
-    author: 'Clara M.',
-    location: 'New York, NY',
-    body: "The wool coat is extraordinary. Quality feels pre-fast-fashion — like my grandmother's wardrobe. Every detail is considered.",
-    rating: 5,
-    verified: true,
-    date: '2 weeks ago',
-  },
-  {
-    id: 2,
-    author: 'Jonas T.',
-    location: 'Berlin, Germany',
-    body: 'Clean cuts, honest materials. Three years in and still looks new. This is what mindful consumption should look like.',
-    rating: 5,
-    verified: true,
-    date: '1 month ago',
-  },
-  {
-    id: 3,
-    author: 'Aya S.',
-    location: 'Tokyo, Japan',
-    body: 'The newsletter writing made me buy. The clothes made me stay. Every piece tells a story of craftsmanship and care.',
-    rating: 5,
-    verified: true,
-    date: '3 weeks ago',
-  },
-  {
-    id: 4,
-    author: 'Marcus L.',
-    location: 'London, UK',
-    body: "Finally, a brand that respects the customer's intelligence. Transparent pricing, quality materials, timeless design.",
-    rating: 5,
-    verified: true,
-    date: '2 months ago',
-  },
-  {
-    id: 5,
-    author: 'Elena R.',
-    location: 'Paris, France',
-    body: 'The linen collection is perfection. Breathable, elegant, and sustainable. Exactly what my summer wardrobe needed.',
-    rating: 5,
-    verified: true,
-    date: '1 week ago',
-  },
-]
+interface Testimonial {
+  id?: string
+  author?: string
+  location?: string
+  body?: string
+  rating?: number
+  verified?: boolean
+  date?: string
+}
 
-export function Testimonials() {
+interface TestimonialsProps {
+  title?: string
+  testimonials?: Testimonial[]
+  autoplay?: boolean
+  autoplayDelay?: number
+}
+
+export function Testimonials({ title = 'What customers say', testimonials = [] }: TestimonialsProps) {
+  if (!testimonials?.length) return null
+
   const [current, setCurrent] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
+  const list = testimonials
+
   const next = useCallback(() => {
-    setCurrent((c) => (c + 1) % TESTIMONIALS.length)
-  }, [])
+    setCurrent((c) => (c + 1) % list.length)
+  }, [list.length])
 
   const prev = useCallback(() => {
-    setCurrent((c) => (c - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
-  }, [])
+    setCurrent((c) => (c - 1 + list.length) % list.length)
+  }, [list.length])
 
   // Auto-advance
   useEffect(() => {
@@ -72,7 +45,7 @@ export function Testimonials() {
     return () => clearInterval(t)
   }, [isPaused, next])
 
-  const currentTestimonial = TESTIMONIALS[current]
+  const currentTestimonial = list[current]
 
   return (
     <section
@@ -129,7 +102,7 @@ export function Testimonials() {
             >
               {/* Stars */}
               <div className="flex items-center justify-center gap-1 mb-6">
-                {Array.from({ length: currentTestimonial.rating }).map((_, i) => (
+                {Array.from({ length: currentTestimonial.rating || 5 }).map((_, i) => (
                   <Star
                     key={i}
                     size={16}
@@ -167,7 +140,7 @@ export function Testimonials() {
 
         {/* Indicators */}
         <div className="flex items-center justify-center gap-2 mt-10 sm:mt-12">
-          {TESTIMONIALS.map((_, i) => (
+          {list.map((_: Testimonial, i: number) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
@@ -192,7 +165,7 @@ export function Testimonials() {
             <ChevronLeft size={18} strokeWidth={1.5} />
           </button>
           <span className="text-[12px] text-[var(--color-nt-white)]/60 min-w-[60px] text-center">
-            {current + 1} / {TESTIMONIALS.length}
+            {current + 1} / {list.length}
           </span>
           <button
             onClick={next}

@@ -14,7 +14,15 @@ export function WishlistGrid() {
   const { addItem } = useCartStore()
   const { pushToast } = useUIStore()
 
-  const handleAddToCart = (item: any) => {
+interface WishlistItem {
+  productId: string
+  slug: string
+  name: string
+  price: number
+  image?: string
+}
+
+  const handleAddToCart = (item: WishlistItem) => {
     addItem({
       productId: item.productId,
       slug: item.slug,
@@ -22,7 +30,7 @@ export function WishlistGrid() {
       variantSku: item.productId,
       variantLabel: 'Default',
       price: item.price,
-      image: item.image,
+      image: item.image || '',
       quantity: 1,
       maxStock: 100,
     })

@@ -1,31 +1,67 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Search, User, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/useCartStore'
 import { useUIStore } from '@/store/useUIStore'
 import { AnnouncementBar } from './AnnouncementBar'
 
-interface Props {
-  nav?: { mainNav?: Array<{ label?: string; link?: string }> }
+import type { Navigation, SiteSetting } from '@/payload-types'
+
+interface HeaderProps {
+  navigation?: Navigation | null
+  siteSettings?: SiteSetting | null
+  fetchFromCMS?: boolean
 }
 
-export function Header({ nav }: Props) {
+async function fetchNavigation(): Promise<Navigation | null> {
+  try {
+    const res = await fetch('/api/globals/navigation')
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+async function fetchSiteSettings(): Promise<SiteSetting | null> {
+  try {
+    const res = await fetch('/api/globals/site-settings')
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export function Header({ navigation: propNavigation, siteSettings: propSiteSettings, fetchFromCMS = false }: HeaderProps) {
+  const [cmsNavigation, setCmsNavigation] = useState<Navigation | null>(null)
+  const [cmsSiteSettings, setCmsSiteSettings] = useState<SiteSetting | null>(null)
+
+  useEffect(() => {
+    if (fetchFromCMS) {
+      fetchNavigation().then(setCmsNavigation)
+      fetchSiteSettings().then(setCmsSiteSettings)
+    }
+  }, [fetchFromCMS])
+
+  const navigation = fetchFromCMS ? cmsNavigation : propNavigation
+  const siteSettings = fetchFromCMS ? cmsSiteSettings : propSiteSettings
+
   const items = useCartStore((s) => s.items)
   const count = items.reduce((n, i) => n + i.quantity, 0)
   const { openCart, openSearch, toggleMobileMenu, openAuth } = useUIStore()
 
-  const mainLinks = nav?.mainNav || [
-    { label: 'Women', link: '/shop?gender=women' },
-    { label: 'Men', link: '/shop?gender=men' },
-    { label: 'New In', link: '/shop?sort=newest' },
-    { label: 'Sale', link: '/shop?sale=true' },
-  ]
+  const mainLinks = navigation?.mainNav || []
+  const announcement = siteSettings?.announcement || null
+
+  if (!mainLinks.length) return null
 
   return (
     <header className="sticky top-0 left-0 right-0 z-40">
       {/* Announcement Bar */}
-      <AnnouncementBar text="Free shipping on orders over $150" />
+      {announcement && <AnnouncementBar text={announcement} />}
 
       {/* Main Header */}
       <div className="bg-[var(--color-nt-white)] border-b border-[var(--color-nt-light-gray)]">
