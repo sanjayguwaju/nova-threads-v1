@@ -459,123 +459,6 @@ async function seedOrders(usersMap: Map<string, string>, productMap: Map<string,
   console.log('')
 }
 
-// Seed Users
-async function seedUsers() {
-  console.log('👤 Seeding Users...')
-  const usersMap = new Map<string, string>()
-
-  // Seed admin
-  try {
-    const existingAdmin = await findExisting('users', 'email', usersSeedData.admin.email)
-    if (existingAdmin) {
-      usersMap.set('admin', existingAdmin)
-      console.log(`  ✓ Admin (exists)`)
-    } else {
-      const admin = await payload.create({
-        collection: 'users',
-        data: { ...usersSeedData.admin, _verified: true },
-      })
-      usersMap.set('admin', admin.id)
-      console.log(`  ✓ Admin created`)
-    }
-  } catch (err) {
-    console.error(`  ✗ Admin:`, err instanceof Error ? err.message : String(err))
-  }
-
-  // Seed customers
-  for (const customer of usersSeedData.customers) {
-    try {
-      const existing = await findExisting('users', 'email', customer.email)
-      if (existing) {
-        usersMap.set(customer.email, existing)
-        console.log(`  ✓ ${customer.firstName} ${customer.lastName} (exists)`)
-        continue
-      }
-      const user = await payload.create({
-        collection: 'users',
-        data: { ...customer, _verified: true },
-      })
-      usersMap.set(customer.email, user.id)
-      console.log(`  ✓ ${customer.firstName} ${customer.lastName}`)
-    } catch (err) {
-      console.error(`  ✗ ${customer.firstName} ${customer.lastName}:`, err instanceof Error ? err.message : String(err))
-    }
-  }
-
-  console.log('')
-  return usersMap
-}
-
-// Seed Reviews
-async function seedReviews(productMap: Map<string, string>) {
-  console.log('⭐ Seeding Reviews...')
-
-  for (const review of reviewsSeedData) {
-    try {
-      // Get first product for review
-      const firstProductId = productMap.values().next().value
-      if (!firstProductId) {
-        console.log('  ✗ No products available for reviews')
-        break
-      }
-
-      const existing = await payload.find({
-        collection: 'reviews',
-        where: { title: { equals: review.title } },
-        limit: 1,
-      })
-
-      if (existing.docs.length > 0) {
-        console.log(`  ✓ "${review.title}" (exists)`)
-        continue
-      }
-
-      await payload.create({
-        collection: 'reviews',
-        data: {
-          ...review,
-          product: firstProductId,
-        },
-      })
-      console.log(`  ✓ "${review.title}"`)
-    } catch (err) {
-      console.error(`  ✗ "${review.title}":`, err instanceof Error ? err.message : String(err))
-    }
-  }
-
-  console.log('')
-}
-
-// Seed Coupons
-async function seedCoupons() {
-  console.log('🏷️  Seeding Coupons...')
-
-  for (const coupon of couponsSeedData) {
-    try {
-      const existing = await payload.find({
-        collection: 'coupons',
-        where: { code: { equals: coupon.code } },
-        limit: 1,
-      })
-
-      if (existing.docs.length > 0) {
-        console.log(`  ✓ ${coupon.code} (exists)`)
-        continue
-      }
-
-      await payload.create({
-        collection: 'coupons',
-        data: coupon,
-      })
-      console.log(`  ✓ ${coupon.code}`)
-    } catch (err) {
-      console.error(`  ✗ ${coupon.code}:`, err instanceof Error ? err.message : String(err))
-    }
-  }
-
-  console.log('')
-}
-
 // Main seed function
 async function seed() {
   try {
@@ -590,9 +473,10 @@ async function seed() {
     await seedTopBar()
 
     // Seed additional collections
-    await seedUsers()
+    const usersMap = await seedUsers()
     if (productMap.size > 0) {
-      await seedReviews(productMap)
+      await seedReviews(productMap, usersMap)
+      await seedOrders(usersMap, productMap)
     }
     await seedCoupons()
 
