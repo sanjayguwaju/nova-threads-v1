@@ -11,10 +11,15 @@ import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/utils/formatCurrency'
 import { cn } from '@/lib/utils/cn'
 import { Input } from '@/components/ui/Input'
+import type { User } from '@/payload-types'
 
 type Step = 1 | 2 | 3
 
-export function CheckoutForm({ user }: { user: any }) {
+interface CheckoutFormProps {
+  user: User | null
+}
+
+export function CheckoutForm({ user }: CheckoutFormProps) {
   const [step, setStep] = useState<Step>(1)
   const [email, setEmail] = useState(user?.email || '')
   const [shipping, setShipping] = useState<Address | null>(null)

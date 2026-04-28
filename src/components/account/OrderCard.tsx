@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { Badge } from '../ui/Badge'
 import { formatCurrency } from '@/lib/utils/formatCurrency'
+import type { Order } from '@/payload-types'
 
-export function OrderCard({ order }: { order: any }) {
+export function OrderCard({ order }: { order: Order }) {
   const statusVariant =
     order.status === 'delivered' || order.status === 'shipped' ? 'success' :
-    order.status === 'cancelled' || order.status === 'refunded' || order.status === 'payment_failed' ? 'sale' :
+    order.status === 'cancelled' || order.status === 'refunded' || order.paymentStatus === 'failed' ? 'sale' :
     'neutral'
 
   return (

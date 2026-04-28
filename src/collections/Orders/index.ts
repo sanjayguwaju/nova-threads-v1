@@ -49,47 +49,25 @@ export const Orders: CollectionConfig = {
       fields: [
         { name: 'product', type: 'relationship', relationTo: 'products' },
         { name: 'variantSku', type: 'text' },
-        { name: 'variantLabel', type: 'text' },
-        { name: 'quantity', type: 'number' },
-        { name: 'unitPrice', type: 'number' },
-        { name: 'totalPrice', type: 'number' },
+        { name: 'quantity', type: 'number', defaultValue: 1 },
+        { name: 'price', type: 'number' },
+        { name: 'total', type: 'number' },
       ],
     },
     { name: 'subtotal', type: 'number' },
-    { name: 'discount', type: 'number', defaultValue: 0 },
-    { name: 'shipping', type: 'number', defaultValue: 0 },
-    { name: 'tax', type: 'number', defaultValue: 0 },
+    { name: 'shippingCost', type: 'number' },
+    { name: 'tax', type: 'number' },
+    { name: 'discount', type: 'number' },
     { name: 'total', type: 'number' },
-    { name: 'coupon', type: 'relationship', relationTo: 'coupons' },
-    {
-      name: 'status',
-      type: 'select',
-      defaultValue: 'pending',
-      options: ['pending', 'payment_failed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'],
-    },
+    { name: 'currency', type: 'text', defaultValue: 'USD' },
+    { name: 'status', type: 'select', defaultValue: 'pending', options: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'] },
+    { name: 'paymentStatus', type: 'select', defaultValue: 'pending', options: ['pending', 'paid', 'failed', 'refunded'] },
     { name: 'shippingAddress', type: 'group', fields: addressFields },
     { name: 'billingAddress', type: 'group', fields: addressFields },
-    { name: 'stripePaymentIntentId', type: 'text' },
-    { name: 'stripeSessionId', type: 'text' },
+    { name: 'shippingMethod', type: 'text' },
     { name: 'trackingNumber', type: 'text' },
     { name: 'notes', type: 'textarea' },
-    {
-      name: 'timeline',
-      type: 'array',
-      fields: [
-        { name: 'status', type: 'text' },
-        { name: 'timestamp', type: 'date' },
-        { name: 'note', type: 'text' },
-      ],
-    },
+    { name: 'couponCode', type: 'text' },
+    { name: 'stripePaymentIntentId', type: 'text', admin: { readOnly: true } },
   ],
-  hooks: {
-    afterChange: [
-      async ({ doc, previousDoc, operation }) => {
-        if (operation === 'update' && previousDoc?.status !== doc.status) {
-          // TODO: send status-change email via Resend
-        }
-      },
-    ],
-  },
 }

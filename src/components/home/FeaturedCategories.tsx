@@ -1,72 +1,62 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import type { Category } from '@/payload-types'
 
-interface Category {
+interface FeaturedCategoryItem {
   id: string
   name: string
-  slug: string
+  slug: string | null | undefined
   image: string
   itemCount?: number
 }
 
-const DEFAULT_CATEGORIES: Category[] = [
-  {
-    id: '1',
-    name: 'Coats',
-    slug: 'coats',
-    image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=1200&fit=crop',
-    itemCount: 12,
-  },
-  {
-    id: '2',
-    name: 'Knitwear',
-    slug: 'knitwear',
-    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&h=1200&fit=crop',
-    itemCount: 18,
-  },
-  {
-    id: '3',
-    name: 'Accessories',
-    slug: 'accessories',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=1200&fit=crop',
-    itemCount: 24,
-  },
-  {
-    id: '4',
-    name: 'Dresses',
-    slug: 'dresses',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&h=1200&fit=crop',
-    itemCount: 15,
-  },
-  {
-    id: '5',
-    name: 'Trousers',
-    slug: 'trousers',
-    image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&h=1200&fit=crop',
-    itemCount: 20,
-  },
-  {
-    id: '6',
-    name: 'Shirts',
-    slug: 'shirts',
-    image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&h=1200&fit=crop',
-    itemCount: 22,
-  },
-]
+interface FeaturedCategoriesProps {
+  title?: string
+  subtitle?: string
+  categories?: FeaturedCategoryItem[]
+  showViewAll?: boolean
+  viewAllText?: string
+  viewAllLink?: string
+  fetchFromCMS?: boolean
+}
 
-export function FeaturedCategories({ categories }: { categories?: any[] }) {
-  const list = categories?.length
-    ? categories.slice(0, 6).map((c, i) => ({
-        id: c.id || String(i),
-        name: c.name,
-        slug: c.slug,
-        image: c.image?.url || DEFAULT_CATEGORIES[i]?.image,
-        itemCount: c.itemCount || DEFAULT_CATEGORIES[i]?.itemCount,
-      }))
-    : DEFAULT_CATEGORIES
+async function fetchCategories(): Promise<FeaturedCategoryItem[]> {
+  const res = await fetch('/api/categories?limit=6&where[featuredOnHome][equals]=true')
+  if (!res.ok) return []
+  const data = await res.json()
+  
+  return (data.docs as Category[]).map((cat) => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    image: typeof cat.image === 'object' ? cat.image?.url || '' : '',
+    itemCount: 0
+  })).filter((c) => c.image)
+}
+
+export function FeaturedCategories({
+  title = 'Shop by Category',
+  subtitle = 'Explore our curated collections',
+  categories: propCategories,
+  fetchFromCMS = false
+}: FeaturedCategoriesProps) {
+  const [cmsCategories, setCmsCategories] = useState<FeaturedCategoryItem[]>([])
+  
+  useEffect(() => {
+    if (fetchFromCMS) {
+      fetchCategories().then(setCmsCategories)
+    }
+  }, [fetchFromCMS])
+  
+  const categories = fetchFromCMS ? cmsCategories : propCategories
+  
+  if (!categories?.length) return null
+
+  const list = categories.slice(0, 6)
 
   return (
     <section className="py-12 sm:py-16 lg:py-24 bg-[var(--color-nt-off-white)]">

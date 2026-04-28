@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 import { fetchCollection, fetchDocument, fetchApi } from '../api/client'
 import type { Where } from 'payload'
+import type { Product } from '@/payload-types'
 
 export const productKeys = {
   all: ['products'] as const,
@@ -12,37 +13,6 @@ export const productKeys = {
   slug: (slug: string) => [...productKeys.details(), 'slug', slug] as const,
   related: (id: string) => [...productKeys.details(), id, 'related'] as const,
   reviews: (productId: string) => [...productKeys.all, 'reviews', productId] as const,
-}
-
-export interface Product {
-  id: string
-  name: string
-  slug: string
-  description?: Record<string, unknown>
-  shortDescription?: string
-  category?: string | { id: string; name: string }
-  brand?: string
-  gender?: 'men' | 'women' | 'unisex' | 'kids'
-  variants: Array<{
-    sku: string
-    size?: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'One Size'
-    color?: string
-    colorHex?: string
-    stock: number
-    price: number
-    compareAtPrice?: number
-  }>
-  materials?: Array<{ material: string; percentage: number }>
-  features?: Array<{ feature: string }>
-  isNew?: boolean
-  isFeatured?: boolean
-  isBestSeller?: boolean
-  status: 'draft' | 'published' | 'archived'
-  averageRating?: number
-  reviewCount?: number
-  publishedAt?: string
-  createdAt: string
-  updatedAt: string
 }
 
 // Get all products with optional filtering

@@ -15,32 +15,9 @@ interface Slide {
   link?: string
 }
 
-const DEFAULTS: Slide[] = [
-  {
-    headline: 'Timeless style for modern lives',
-    subheadline: 'Autumn/Winter collection now available',
-    cta: 'Shop Now',
-    image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&h=1080&fit=crop',
-    link: '/shop?sort=newest',
-  },
-  {
-    headline: 'Quiet luxury essentials',
-    subheadline: 'Sustainably crafted for everyday wear',
-    cta: 'Explore',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&h=1080&fit=crop',
-    link: '/shop',
-  },
-  {
-    headline: 'Made to last',
-    subheadline: 'Investment pieces for your wardrobe',
-    cta: 'Discover',
-    image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920&h=1080&fit=crop',
-    link: '/shop',
-  },
-]
-
 export function HeroSlider({ slides }: { slides?: Slide[] }) {
-  const list = (slides?.length ? slides : DEFAULTS) as Slide[]
+  if (!slides?.length) return null
+  const list = slides as Slide[]
   const [i, setI] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 

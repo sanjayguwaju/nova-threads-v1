@@ -5,7 +5,35 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, ArrowRight, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function Newsletter() {
+interface TrustBadge {
+  text?: string
+}
+
+interface NewsletterProps {
+  sectionLabel?: string
+  headline?: string
+  subheadline?: string
+  placeholder?: string
+  buttonText?: string
+  mobileButtonText?: string
+  privacyText?: string
+  successHeadline?: string
+  successMessage?: string
+  trustBadges?: TrustBadge[]
+}
+
+export function Newsletter({
+  sectionLabel = 'Newsletter',
+  headline = 'Join The Studio',
+  subheadline = 'Subscribe for exclusive previews, essays on mindful style, and 10% off your first order.',
+  placeholder = 'Enter your email address',
+  buttonText = 'Join Now',
+  mobileButtonText = 'Subscribe',
+  privacyText = 'By subscribing, you agree to receive marketing emails. Unsubscribe anytime.',
+  successHeadline = 'Welcome to the Studio',
+  successMessage = 'Check your inbox for 10% off your first order.',
+  trustBadges = [],
+}: NewsletterProps) {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [focused, setFocused] = useState(false)
@@ -30,18 +58,17 @@ export function Newsletter() {
 
             {/* Section Label */}
             <span className="block text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.12em] text-[var(--color-nt-mid-gray)] mb-3 sm:mb-4">
-              Newsletter
+              {sectionLabel}
             </span>
 
             {/* Headline */}
             <h2 className="text-[24px] sm:text-[32px] lg:text-[40px] font-bold leading-[1.1] tracking-[-0.02em] text-[var(--color-nt-black)] uppercase">
-              Join The Studio
+              {headline}
             </h2>
 
             {/* Subheadline */}
-            <p className="mt-3 sm:mt-4 text-[var(--color-nt-mid-gray)] text-[14px] sm:text-[15px] max-w-[420px] mx-auto leading-relaxed">
-              Subscribe for exclusive previews, essays on mindful style, and 10% off your first
-              order.
+             <p className="mt-3 sm:mt-4 text-[var(--color-nt-mid-gray)] text-[14px] sm:text-[15px] max-w-[420px] mx-auto leading-relaxed">
+              {subheadline}
             </p>
           </div>
 
@@ -71,7 +98,7 @@ export function Newsletter() {
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    placeholder="Enter your email address"
+                    placeholder={placeholder}
                     className="flex-1 bg-transparent py-3.5 px-0 text-[15px] sm:text-[16px] focus:outline-none text-[var(--color-nt-black)] placeholder:text-[var(--color-nt-mid-gray)]"
                     aria-label="Email address"
                   />
@@ -85,15 +112,15 @@ export function Newsletter() {
                         : 'bg-[var(--color-nt-light-gray)] text-[var(--color-nt-mid-gray)] cursor-not-allowed',
                     )}
                   >
-                    <span className="sm:hidden">Subscribe</span>
-                    <span className="hidden sm:inline">Join Now</span>
+                    <span className="sm:hidden">{mobileButtonText}</span>
+                    <span className="hidden sm:inline">{buttonText}</span>
                     <ArrowRight size={16} strokeWidth={1.5} />
                   </button>
                 </div>
 
                 {/* Privacy Note */}
                 <p className="text-center sm:text-left mt-4 text-[11px] sm:text-[12px] text-[var(--color-nt-mid-gray)]">
-                  By subscribing, you agree to receive marketing emails. Unsubscribe anytime.
+                  {privacyText}
                 </p>
               </motion.form>
             ) : (
@@ -108,25 +135,28 @@ export function Newsletter() {
                   <Check size={28} strokeWidth={1.5} className="text-[var(--color-nt-white)]" />
                 </div>
                 <h3 className="text-[18px] sm:text-[20px] font-semibold text-[var(--color-nt-black)] uppercase tracking-wide mb-2">
-                  Welcome to the Studio
+                  {successHeadline}
                 </h3>
                 <p className="text-[var(--color-nt-mid-gray)] text-[14px]">
-                  Check your inbox for 10% off your first order.
+                  {successMessage}
                 </p>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Trust Badges */}
-          <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-[var(--color-nt-light-gray)]">
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[11px] sm:text-[12px] text-[var(--color-nt-mid-gray)] uppercase tracking-wider">
-              <span>No spam, ever</span>
-              <span className="hidden sm:inline">·</span>
-              <span>Unsubscribe anytime</span>
-              <span className="hidden sm:inline">·</span>
-              <span>10% off first order</span>
+          {trustBadges?.length > 0 && (
+            <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-[var(--color-nt-light-gray)]">
+              <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[11px] sm:text-[12px] text-[var(--color-nt-mid-gray)] uppercase tracking-wider">
+                {trustBadges.map((badge, i) => (
+                  <span key={i}>
+                    {badge.text}
+                    {i < trustBadges.length - 1 && <span className="hidden sm:inline mx-4">·</span>}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>

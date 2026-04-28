@@ -1,57 +1,84 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ChevronDown, CreditCard, Shield, Truck, RotateCcw, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-interface Props {
-  nav?: {
-    footerNav?: Array<{ heading?: string; links?: Array<{ label?: string; link?: string }> }>
+import type { Navigation, SiteSetting } from '@/payload-types'
+
+interface FooterColumn {
+  heading?: string | null
+  links?: { label?: string | null; link?: string | null }[] | null
+}
+
+interface FooterProps {
+  navigation?: Navigation | null
+  siteSettings?: SiteSetting | null
+  fetchFromCMS?: boolean
+}
+
+async function fetchNavigation(): Promise<Navigation | null> {
+  try {
+    const res = await fetch('/api/globals/navigation')
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
   }
 }
 
-const DEFAULT_COLUMNS = [
-  {
-    heading: 'Shop',
-    links: [
-      { label: 'All Products', link: '/shop' },
-      { label: 'Women', link: '/shop?gender=women' },
-      { label: 'Men', link: '/shop?gender=men' },
-      { label: 'New Arrivals', link: '/shop?sort=newest' },
-      { label: 'Sale', link: '/shop?sale=true' },
-    ],
-  },
-  {
-    heading: 'Help',
-    links: [
-      { label: 'FAQ', link: '/faq' },
-      { label: 'Shipping', link: '/shipping' },
-      { label: 'Returns', link: '/returns' },
-      { label: 'Contact', link: '/contact' },
-      { label: 'Size Guide', link: '/size-guide' },
-    ],
-  },
-  {
-    heading: 'About',
-    links: [
-      { label: 'Our Story', link: '/about' },
-      { label: 'Sustainability', link: '/sustainability' },
-      { label: 'Careers', link: '/careers' },
-      { label: 'Press', link: '/press' },
-    ],
-  },
-]
+async function fetchSiteSettings(): Promise<SiteSetting | null> {
+  try {
+    const res = await fetch('/api/globals/site-settings')
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
 
-const TRUST_BADGES = [
-  { icon: Shield, label: 'Secure Payment' },
-  { icon: Truck, label: 'Fast Shipping' },
-  { icon: RotateCcw, label: 'Easy Returns' },
-]
-
-export function Footer({ nav }: Props) {
-  const columns = nav?.footerNav?.length ? nav.footerNav : DEFAULT_COLUMNS
+export function Footer({ navigation: propNavigation, siteSettings: propSiteSettings, fetchFromCMS = false }: FooterProps) {
+  const [cmsNavigation, setCmsNavigation] = useState<Navigation | null>(null)
+  const [cmsSiteSettings, setCmsSiteSettings] = useState<SiteSetting | null>(null)
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (fetchFromCMS) {
+      fetchNavigation().then(setCmsNavigation)
+      fetchSiteSettings().then(setCmsSiteSettings)
+    }
+  }, [fetchFromCMS])
+
+  const navigation = fetchFromCMS ? cmsNavigation : propNavigation
+  const siteSettings = fetchFromCMS ? cmsSiteSettings : propSiteSettings
+
+  const columns: FooterColumn[] = navigation?.footerNav?.length ? navigation.footerNav : []
+
+  // Trust badges - removed, not in SiteSetting type
+  const trustBadges: { icon: React.ElementType; label: string }[] = []
+
+  // Newsletter content - use defaults since not in type
+  const newsletterTitle = 'Join the studio'
+  const newsletterSubtitle = 'Subscribe for updates on new collections and exclusive offers.'
+  const newsletterPlaceholder = 'Enter your email'
+  const newsletterButtonText = 'Join'
+
+  // Social links from site settings (socialLinks property exists in SiteSetting)
+  const socialLinks = siteSettings?.socialLinks
+    ? Object.entries(siteSettings.socialLinks)
+        .filter(([, url]) => url)
+        .map(([platform, url]) => ({ platform, url: url as string }))
+    : []
+
+  // Footer text
+  const footerText = `${new Date().getFullYear()} NOVA THREADS. All rights reserved.`
+  const privacyLink = '/legal/privacy'
+  const termsLink = '/legal/terms'
+
+  if (!columns.length && !socialLinks.length) {
+    return null
+  }
 
   const toggleAccordion = (heading: string) => {
     setOpenAccordion(openAccordion === heading ? null : heading)
@@ -63,7 +90,7 @@ export function Footer({ nav }: Props) {
       <div className="md:hidden border-b border-[var(--color-nt-light-gray)]">
         <div className="max-w-container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {TRUST_BADGES.map((badge) => (
+            {trustBadges.map((badge) => (
               <div key={badge.label} className="flex flex-col items-center gap-1.5">
                 <badge.icon
                   size={18}

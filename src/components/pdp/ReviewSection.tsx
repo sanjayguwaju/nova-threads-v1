@@ -69,7 +69,7 @@ function StarRating({ rating }: { rating: number }) {
 export function ReviewSection({ reviews: propReviews }: ReviewSectionProps) {
   const [showForm, setShowForm] = useState(false)
   const reviews = propReviews && propReviews.length > 0 ? propReviews : MOCK_REVIEWS
-  const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length || 0
+  const avg = reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length || 0
   const total = reviews.length
 
   return (
@@ -168,7 +168,7 @@ export function ReviewSection({ reviews: propReviews }: ReviewSectionProps) {
             >
               {/* Stars & Verified */}
               <div className="flex items-center gap-3 mb-2">
-                <StarRating rating={review.rating} />
+                <StarRating rating={review.rating || 0} />
                 {review.verified && (
                   <span className="text-[11px] text-[var(--color-nt-success)] uppercase tracking-wider">
                     Verified
@@ -193,7 +193,7 @@ export function ReviewSection({ reviews: propReviews }: ReviewSectionProps) {
                 </span>
                 <span>·</span>
                 <span>
-                  {new Date(review.createdAt).toLocaleDateString('en-US', {
+                  {new Date(review.createdAt || new Date().toISOString()).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
