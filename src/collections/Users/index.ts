@@ -52,9 +52,29 @@ export const Users: CollectionConfig = {
   ],
   hooks: {
     afterChange: [
-      async ({ doc, operation }) => {
+      async ({ doc, operation, req }) => {
         if (operation === 'create') {
-          // TODO: send welcome email via Resend + create Stripe customer
+          try {
+            const { sendWelcomeEmail } = await import('@/lib/email')
+            await sendWelcomeEmail({ email: doc.email, firstName: doc.firstName })
+          } catch (err) {
+            console.error('Failed to send welcome email:', err)
+          }
+
+          try {
+            const { stripe } = await import('@/lib/stripe/client')
+            const customer = await stripe.customers.create({
+              email: doc.email,
+              name: [doc.firstName, doc.lastName].filter(Boolean).join(' ') || undefined,
+            })
+            await req.payload.update({
+              collection: 'users',
+              id: doc.id,
+              data: { stripeCustomerId: customer.id },
+            })
+          } catch (stripeErr) {
+            console.error('Failed to create Stripe customer:', stripeErr)
+          }
         }
       },
     ],

@@ -1305,11 +1305,11 @@ async function seedOrders(
           items: itemsWithTotals,
           subtotal,
           discount,
-          shipping,
+          shippingCost: shipping,
           tax: 0,
           total,
           status: order.status,
-          coupon: order.couponCode ? couponMap[order.couponCode] : undefined,
+          couponCode: order.couponCode ? order.couponCode : undefined,
           shippingAddress: {
             firstName: 'Demo',
             lastName: 'Customer',
@@ -1332,45 +1332,6 @@ async function seedOrders(
             country: 'USA',
             phone: '+1 (555) 987-6543',
           },
-          timeline: [
-            {
-              status: 'Order Placed',
-              timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-              note: 'Order received',
-            },
-            {
-              status: 'Payment Confirmed',
-              timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-              note: 'Payment processed',
-            },
-            ...(order.status !== 'pending'
-              ? [
-                  {
-                    status: 'Processing',
-                    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                    note: 'Order being prepared',
-                  },
-                ]
-              : []),
-            ...(order.status === 'shipped' || order.status === 'delivered'
-              ? [
-                  {
-                    status: 'Shipped',
-                    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                    note: 'Out for delivery',
-                  },
-                ]
-              : []),
-            ...(order.status === 'delivered'
-              ? [
-                  {
-                    status: 'Delivered',
-                    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                    note: 'Package delivered',
-                  },
-                ]
-              : []),
-          ],
         },
       })
       console.log(`  ✓ Created order for "${order.customerEmail}" ($${total.toFixed(2)})`)

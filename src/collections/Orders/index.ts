@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { sendShippingNotificationEmail } from '@/lib/email'
 
 const addressFields = [
   { name: 'firstName', type: 'text' as const },
@@ -14,7 +15,10 @@ const addressFields = [
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
-  admin: { useAsTitle: 'orderNumber', defaultColumns: ['orderNumber', 'status', 'total', 'createdAt'] },
+  admin: {
+    useAsTitle: 'orderNumber',
+    defaultColumns: ['orderNumber', 'status', 'total', 'createdAt'],
+  },
   access: {
     read: ({ req: { user } }) => {
       if (user?.role === 'admin') return true
@@ -35,7 +39,9 @@ export const Orders: CollectionConfig = {
           ({ value }) => {
             if (value) return value
             const yr = new Date().getFullYear()
-            const rand = Math.floor(Math.random() * 100000).toString().padStart(5, '0')
+            const rand = Math.floor(Math.random() * 100000)
+              .toString()
+              .padStart(5, '0')
             return `NT-${yr}-${rand}`
           },
         ],
@@ -60,8 +66,18 @@ export const Orders: CollectionConfig = {
     { name: 'discount', type: 'number' },
     { name: 'total', type: 'number' },
     { name: 'currency', type: 'text', defaultValue: 'USD' },
-    { name: 'status', type: 'select', defaultValue: 'pending', options: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'] },
-    { name: 'paymentStatus', type: 'select', defaultValue: 'pending', options: ['pending', 'paid', 'failed', 'refunded'] },
+    {
+      name: 'status',
+      type: 'select',
+      defaultValue: 'pending',
+      options: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'],
+    },
+    {
+      name: 'paymentStatus',
+      type: 'select',
+      defaultValue: 'pending',
+      options: ['pending', 'paid', 'failed', 'refunded'],
+    },
     { name: 'shippingAddress', type: 'group', fields: addressFields },
     { name: 'billingAddress', type: 'group', fields: addressFields },
     { name: 'shippingMethod', type: 'text' },
@@ -69,5 +85,38 @@ export const Orders: CollectionConfig = {
     { name: 'notes', type: 'textarea' },
     { name: 'couponCode', type: 'text' },
     { name: 'stripePaymentIntentId', type: 'text', admin: { readOnly: true } },
+    {
+      name: 'invoiceNumber',
+      type: 'text',
+      unique: true,
+      admin: { readOnly: true },
+      hooks: {
+        beforeValidate: [
+          ({ value }) => {
+            if (value) return value
+            const yr = new Date().getFullYear()
+            const rand = Math.floor(Math.random() * 100000)
+              .toString()
+              .padStart(5, '0')
+            return `INV-${yr}-${rand}`
+          },
+        ],
+      },
+    },
+    { name: 'invoiceSent', type: 'checkbox', defaultValue: false, admin: { readOnly: true } },
+    { name: 'invoiceDate', type: 'date', admin: { readOnly: true } },
   ],
+  hooks: {
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        if (doc.status === 'shipped' && previousDoc?.status !== 'shipped') {
+          try {
+            await sendShippingNotificationEmail(doc)
+          } catch (err) {
+            console.error('Failed to send shipping notification:', err)
+          }
+        }
+      },
+    ],
+  },
 }

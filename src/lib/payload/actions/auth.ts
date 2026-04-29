@@ -45,12 +45,30 @@ export async function getCurrentUser() {
 
 export async function forgotPassword(email: string) {
   const payload = await getPayload()
-  await payload.forgotPassword({ collection: 'users', data: { email } })
+  const result = await payload.forgotPassword({ collection: 'users', data: { email } })
+
+  // Payload's forgotPassword returns a reset token in some configurations.
+  // If a token is available, send a custom branded email.
+  if (result && (result as any).token) {
+    const token = (result as any).token
+    const resetUrl = `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`
+    try {
+      const { sendPasswordResetEmail } = await import('@/lib/email')
+      await sendPasswordResetEmail(email, resetUrl)
+    } catch (err) {
+      console.error('Failed to send password reset email:', err)
+    }
+  }
+
   return { ok: true }
 }
 
 export async function resetPassword(token: string, password: string) {
   const payload = await getPayload()
-  await payload.resetPassword({ collection: 'users', data: { token, password }, overrideAccess: true })
+  await payload.resetPassword({
+    collection: 'users',
+    data: { token, password },
+    overrideAccess: true,
+  })
   return { ok: true }
 }

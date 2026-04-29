@@ -378,6 +378,9 @@ export interface Order {
   notes?: string | null;
   couponCode?: string | null;
   stripePaymentIntentId?: string | null;
+  invoiceNumber?: string | null;
+  invoiceSent?: boolean | null;
+  invoiceDate?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -811,6 +814,9 @@ export interface OrdersSelect<T extends boolean = true> {
   notes?: T;
   couponCode?: T;
   stripePaymentIntentId?: T;
+  invoiceNumber?: T;
+  invoiceSent?: T;
+  invoiceDate?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -6,7 +6,7 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
 import { getQueryClient } from '@/lib/queryClient'
 import { ShopContent } from './ShopContent'
 import { fetchCollection } from '@/lib/api/client'
-import type { Product, Category } from '@/lib/hooks'
+import type { Product, Category } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 

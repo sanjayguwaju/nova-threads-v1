@@ -14,7 +14,11 @@ import { AuthModal } from '@/components/layout/AuthModal'
 import { CartDrawer } from '@/components/layout/CartDrawer'
 import { PromoModal } from '@/components/layout/PromoModal'
 import { getPayload } from '@/lib/payload/getPayload'
-import type { Navigation as NavigationType, SiteSetting as SiteSettingsType, TopBar as TopBarType } from '@/payload-types'
+import type {
+  Navigation as NavigationType,
+  SiteSetting as SiteSettingsType,
+  TopBar as TopBarType,
+} from '@/payload-types'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -24,8 +28,34 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  description: 'NOVA THREADS - Premium Fashion for Everyone',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'https://novathreads.com'),
   title: 'NOVA THREADS',
+  description: 'NOVA THREADS - Premium Fashion for Everyone',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'NOVA THREADS',
+    title: 'NOVA THREADS',
+    description: 'NOVA THREADS - Premium Fashion for Everyone',
+    images: ['/api/media/file/og-image.jpg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'NOVA THREADS',
+    description: 'NOVA THREADS - Premium Fashion for Everyone',
+    images: ['/api/media/file/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 export const viewport: Viewport = {
@@ -38,13 +68,13 @@ export const viewport: Viewport = {
 async function getGlobalData() {
   try {
     const payload = await getPayload()
-    
+
     const [navigation, siteSettings, topBar] = await Promise.all([
       payload.findGlobal({ slug: 'navigation' }).catch(() => null),
       payload.findGlobal({ slug: 'site-settings' }).catch(() => null),
       payload.findGlobal({ slug: 'top-bar' }).catch(() => null),
     ])
-    
+
     return { navigation, siteSettings, topBar }
   } catch (error) {
     console.error('Failed to fetch global data:', error)

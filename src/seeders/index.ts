@@ -116,15 +116,16 @@ async function seedProducts(categoryMap: Map<string, string>, tagMap: Map<string
       }
 
       // Get tag IDs
-      const tagIds = prod.tags
-        .map((t) => tagMap.get(t))
-        .filter((id): id is string => !!id)
+      const tagIds = prod.tags.map((t) => tagMap.get(t)).filter((id): id is string => !!id)
 
       const created = await payload.create({
         collection: 'products',
         data: {
           name: prod.name,
-          slug: prod.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+          slug: prod.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, ''),
           shortDescription: prod.shortDescription,
           category: categoryId,
           brand: prod.brand,
@@ -268,7 +269,7 @@ async function seedUsers() {
     } else {
       const admin = await payload.create({
         collection: 'users',
-        data: { ...usersSeedData.admin, _verified: true },
+        data: usersSeedData.admin,
       })
       usersMap.set('admin', admin.id)
       console.log(`  ✓ Admin created`)
@@ -288,12 +289,15 @@ async function seedUsers() {
       }
       const user = await payload.create({
         collection: 'users',
-        data: { ...customer, _verified: true },
+        data: customer,
       })
       usersMap.set(customer.email, user.id)
       console.log(`  ✓ ${customer.firstName} ${customer.lastName}`)
     } catch (err) {
-      console.error(`  ✗ ${customer.firstName} ${customer.lastName}:`, err instanceof Error ? err.message : String(err))
+      console.error(
+        `  ✗ ${customer.firstName} ${customer.lastName}:`,
+        err instanceof Error ? err.message : String(err),
+      )
     }
   }
 
@@ -315,7 +319,7 @@ async function seedReviews(productMap: Map<string, string>, usersMap: Map<string
       }
 
       // Find customer by author name
-      let authorId = null
+      let authorId: string | undefined = undefined
       for (const [email, userId] of usersMap.entries()) {
         if (email.includes('sarah') && review.authorName.includes('Sarah')) {
           authorId = userId
@@ -325,6 +329,11 @@ async function seedReviews(productMap: Map<string, string>, usersMap: Map<string
           authorId = userId
           break
         }
+      }
+
+      if (!authorId) {
+        console.log(`  ✗ "${review.title}": Author not found`)
+        continue
       }
 
       const existing = await payload.find({
@@ -466,7 +475,7 @@ async function seed() {
     const tagMap = await seedTags()
     const productMap = await seedProducts(categoryMap, tagMap)
     await seedHomePage(categoryMap, productMap)
-    
+
     // Seed globals
     await seedNavigation()
     await seedSiteSettings()

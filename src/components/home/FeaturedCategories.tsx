@@ -4,56 +4,47 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import type { Category } from '@/payload-types'
-
-interface FeaturedCategoryItem {
-  id: string
-  name: string
-  slug: string | null | undefined
-  image: string
-  itemCount?: number
-}
+import type { Category } from '@/lib/hooks/useCategories'
 
 interface FeaturedCategoriesProps {
   title?: string
   subtitle?: string
-  categories?: FeaturedCategoryItem[]
+  categories?: Category[]
   showViewAll?: boolean
   viewAllText?: string
   viewAllLink?: string
   fetchFromCMS?: boolean
 }
 
-async function fetchCategories(): Promise<FeaturedCategoryItem[]> {
+async function fetchCategories(): Promise<Category[]> {
   const res = await fetch('/api/categories?limit=6&where[featuredOnHome][equals]=true')
   if (!res.ok) return []
   const data = await res.json()
-  
-  return (data.docs as Category[]).map((cat) => ({
-    id: cat.id,
-    name: cat.name,
-    slug: cat.slug,
-    image: typeof cat.image === 'object' ? cat.image?.url || '' : '',
-    itemCount: 0
-  })).filter((c) => c.image)
+  return (data.docs as Category[]).filter((c) => c.image)
+}
+
+function getCategoryImageUrl(image: Category['image']): string {
+  if (!image) return ''
+  if (typeof image === 'string') return image
+  return image?.url || ''
 }
 
 export function FeaturedCategories({
   title = 'Shop by Category',
   subtitle = 'Explore our curated collections',
   categories: propCategories,
-  fetchFromCMS = false
+  fetchFromCMS = false,
 }: FeaturedCategoriesProps) {
-  const [cmsCategories, setCmsCategories] = useState<FeaturedCategoryItem[]>([])
-  
+  const [cmsCategories, setCmsCategories] = useState<Category[]>([])
+
   useEffect(() => {
     if (fetchFromCMS) {
       fetchCategories().then(setCmsCategories)
     }
   }, [fetchFromCMS])
-  
+
   const categories = fetchFromCMS ? cmsCategories : propCategories
-  
+
   if (!categories?.length) return null
 
   const list = categories.slice(0, 6)
@@ -81,7 +72,7 @@ export function FeaturedCategories({
             >
               <div className="absolute inset-0 overflow-hidden">
                 <Image
-                  src={c.image}
+                  src={getCategoryImageUrl(c.image)}
                   alt={c.name}
                   fill
                   className="object-cover object-top"
@@ -93,11 +84,6 @@ export function FeaturedCategories({
                 <span className="text-[14px] font-bold text-[var(--color-nt-white)] uppercase tracking-[0.05em]">
                   {c.name}
                 </span>
-                {c.itemCount && (
-                  <span className="text-[11px] text-[var(--color-nt-white)]/70 mt-1">
-                    {c.itemCount} items
-                  </span>
-                )}
               </div>
             </Link>
           ))}
@@ -117,7 +103,7 @@ export function FeaturedCategories({
                 transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
               >
                 <Image
-                  src={c.image}
+                  src={getCategoryImageUrl(c.image)}
                   alt={c.name}
                   fill
                   className="object-cover object-top"
@@ -129,11 +115,6 @@ export function FeaturedCategories({
                 <span className="text-[15px] font-bold text-[var(--color-nt-white)] uppercase tracking-[0.05em]">
                   {c.name}
                 </span>
-                {c.itemCount && (
-                  <span className="text-[12px] text-[var(--color-nt-white)]/70 mt-1">
-                    {c.itemCount} items
-                  </span>
-                )}
               </div>
             </Link>
           ))}
@@ -153,7 +134,7 @@ export function FeaturedCategories({
                 transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
               >
                 <Image
-                  src={c.image}
+                  src={getCategoryImageUrl(c.image)}
                   alt={c.name}
                   fill
                   className="object-cover object-top"
@@ -165,11 +146,6 @@ export function FeaturedCategories({
                 <motion.span className="text-[14px] lg:text-[15px] font-bold text-[var(--color-nt-white)] uppercase tracking-[0.05em] group-hover:translate-y-[-4px] transition-transform duration-300">
                   {c.name}
                 </motion.span>
-                {c.itemCount && (
-                  <span className="text-[11px] lg:text-[12px] text-[var(--color-nt-white)]/70 mt-1 group-hover:translate-y-[-2px] transition-transform duration-300 delay-75">
-                    {c.itemCount} items
-                  </span>
-                )}
               </div>
             </Link>
           ))}

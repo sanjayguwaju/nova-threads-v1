@@ -29,7 +29,7 @@ const blockRenderers: Record<string, BlockRenderFn> = {
           subheadline: s.subheadline ?? undefined,
           cta: s.cta ?? undefined,
           link: s.link ?? undefined,
-          image: s.image,
+          image: s.image ?? undefined,
         }))}
         autoplay={b.autoplay ?? true}
         autoplayDelay={b.autoplayDelay ?? 6000}
