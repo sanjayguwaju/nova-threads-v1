@@ -76,6 +76,10 @@ export interface Config {
     tags: Tag;
     media: Media;
     pages: Page;
+    posts: Post;
+    'customer-tiers': CustomerTier;
+    'gift-cards': GiftCard;
+    'abandoned-carts': AbandonedCart;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +96,10 @@ export interface Config {
     tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    'customer-tiers': CustomerTiersSelect<false> | CustomerTiersSelect<true>;
+    'gift-cards': GiftCardsSelect<false> | GiftCardsSelect<true>;
+    'abandoned-carts': AbandonedCartsSelect<false> | AbandonedCartsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -105,11 +113,13 @@ export interface Config {
     'site-settings': SiteSetting;
     navigation: Navigation;
     'top-bar': TopBar;
+    'cod-settings': CodSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     'top-bar': TopBarSelect<false> | TopBarSelect<true>;
+    'cod-settings': CodSettingsSelect<false> | CodSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -151,6 +161,11 @@ export interface User {
   phone?: string | null;
   dateOfBirth?: string | null;
   role?: ('customer' | 'admin' | 'editor') | null;
+  customerTier?: (string | null) | CustomerTier;
+  lifetimeValue?: number | null;
+  totalOrders?: number | null;
+  tierUpdatedAt?: string | null;
+  isNewsletterSubscriber?: boolean | null;
   addresses?:
     | {
         label?: string | null;
@@ -235,6 +250,33 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customer-tiers".
+ */
+export interface CustomerTier {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  tierLevel?: number | null;
+  color?: string | null;
+  isActive?: boolean | null;
+  minLifetimeSpend?: number | null;
+  minOrdersCount?: number | null;
+  minAccountAgeDays?: number | null;
+  discountPercent?: number | null;
+  freeShipping?: boolean | null;
+  earlyAccess?: boolean | null;
+  exclusiveProducts?: (string | Product)[] | null;
+  birthdayBonus?: {
+    enabled?: boolean | null;
+    discountPercent?: number | null;
+    validDays?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
 export interface Product {
@@ -242,6 +284,8 @@ export interface Product {
   name: string;
   slug: string;
   sku?: string | null;
+  status?: ('draft' | 'published' | 'archived') | null;
+  featured?: boolean | null;
   shortDescription?: string | null;
   longDescription?: {
     root: {
@@ -260,39 +304,71 @@ export interface Product {
   } | null;
   category: string | Category;
   tags?: (string | Tag)[] | null;
-  variants?:
-    | {
-        sku: string;
-        size?: ('XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'One Size') | null;
-        color?: string | null;
-        colorHex?: string | null;
-        stock?: number | null;
-        price: number;
-        compareAtPrice?: number | null;
-        images?: (string | Media)[] | null;
-        id?: string | null;
-      }[]
-    | null;
-  images?: (string | Media)[] | null;
+  gender?: ('unisex' | 'men' | 'women' | 'kids') | null;
+  brand?: string | null;
   price: number;
   compareAtPrice?: number | null;
   costPerItem?: number | null;
-  brand?: string | null;
-  material?: string | null;
-  careInstructions?: string | null;
-  gender?: ('unisex' | 'men' | 'women' | 'kids') | null;
-  status?: ('draft' | 'published' | 'archived') | null;
-  featured?: boolean | null;
   weight?: number | null;
   dimensions?: {
     length?: number | null;
     width?: number | null;
     height?: number | null;
   };
-  averageRating?: number | null;
-  reviewCount?: number | null;
+  images?: (string | Media)[] | null;
+  variants?:
+    | {
+        sku: string;
+        stock?: number | null;
+        trackInventory?: boolean | null;
+        size?: ('XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'One Size') | null;
+        color?: string | null;
+        colorHex?: string | null;
+        price: number;
+        compareAtPrice?: number | null;
+        costPerItem?: number | null;
+        inventoryLocations?:
+          | {
+              locationName?: string | null;
+              quantity?: number | null;
+              id?: string | null;
+            }[]
+          | null;
+        images?: (string | Media)[] | null;
+        id?: string | null;
+      }[]
+    | null;
+  inventoryLocations?:
+    | {
+        locationName: string;
+        quantity?: number | null;
+        lowStockThreshold?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  currencyPrices?:
+    | {
+        currency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'INR';
+        price: number;
+        compareAtPrice?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  metafields?:
+    | {
+        namespace: string;
+        key: string;
+        type?: ('string' | 'integer' | 'decimal' | 'boolean' | 'json') | null;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  material?: string | null;
+  careInstructions?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  averageRating?: number | null;
+  reviewCount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -307,8 +383,8 @@ export interface Category {
   description?: string | null;
   image?: (string | null) | Media;
   parent?: (string | null) | Category;
-  featuredOnHome?: boolean | null;
   order?: number | null;
+  featuredOnHome?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -333,6 +409,10 @@ export interface Order {
   orderNumber?: string | null;
   customer?: (string | null) | User;
   guestEmail?: string | null;
+  currency?: string | null;
+  status?: ('pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded') | null;
+  paymentStatus?: ('pending' | 'paid' | 'failed' | 'refunded' | 'cod_pending' | 'cod_collected') | null;
+  paymentMethod?: ('stripe' | 'cod' | 'paypal' | 'bank_transfer') | null;
   items?:
     | {
         product?: (string | null) | Product;
@@ -348,9 +428,7 @@ export interface Order {
   tax?: number | null;
   discount?: number | null;
   total?: number | null;
-  currency?: string | null;
-  status?: ('pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded') | null;
-  paymentStatus?: ('pending' | 'paid' | 'failed' | 'refunded') | null;
+  couponCode?: string | null;
   shippingAddress?: {
     firstName?: string | null;
     lastName?: string | null;
@@ -376,11 +454,64 @@ export interface Order {
   shippingMethod?: string | null;
   trackingNumber?: string | null;
   notes?: string | null;
-  couponCode?: string | null;
-  stripePaymentIntentId?: string | null;
   invoiceNumber?: string | null;
-  invoiceSent?: boolean | null;
   invoiceDate?: string | null;
+  invoiceSent?: boolean | null;
+  stripePaymentIntentId?: string | null;
+  paypalOrderId?: string | null;
+  isCOD?: boolean | null;
+  codStatus?:
+    | ('pending' | 'out_for_delivery' | 'delivery_attempted' | 'delivered' | 'amount_collected' | 'cod_failed')
+    | null;
+  codAmount?: number | null;
+  codCollectedAt?: string | null;
+  codCollectedBy?: string | null;
+  codDeliveryAttempts?: number | null;
+  codDeliveryNotes?: string | null;
+  codVerificationCode?: string | null;
+  fulfillmentEvents?:
+    | {
+        status: 'pending' | 'in_transit' | 'delivered' | 'failed' | 'returned';
+        location?: string | null;
+        timestamp?: string | null;
+        message?: string | null;
+        trackingNumber?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  shippedFromLocation?: string | null;
+  estimatedDeliveryDate?: string | null;
+  returns?:
+    | {
+        returnNumber?: string | null;
+        status?: ('requested' | 'approved' | 'received' | 'inspected' | 'refunded' | 'rejected' | 'closed') | null;
+        requestedAt?: string | null;
+        receivedAt?: string | null;
+        refundedAt?: string | null;
+        items?:
+          | {
+              product?: (string | null) | Product;
+              variantSku?: string | null;
+              quantity?: number | null;
+              price?: number | null;
+              refundAmount?: number | null;
+              returnReason?: ('defective' | 'wrong_item' | 'not_as_described' | 'changed_mind' | 'other') | null;
+              customerNotes?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        totalRefundAmount?: number | null;
+        restockingFee?: number | null;
+        adminNotes?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  returnStatus?: ('none' | 'requested' | 'in_progress' | 'completed') | null;
+  isDraft?: boolean | null;
+  draftCreatedAt?: string | null;
+  draftExpiresAt?: string | null;
+  draftInvoiceSent?: boolean | null;
+  draftInvoiceUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -392,9 +523,9 @@ export interface Review {
   id: string;
   product: string | Product;
   author: string | User;
-  rating: number;
   title?: string | null;
   body?: string | null;
+  rating: number;
   verified?: boolean | null;
   images?: (string | Media)[] | null;
   status?: ('pending' | 'approved' | 'rejected') | null;
@@ -409,15 +540,36 @@ export interface Review {
 export interface Coupon {
   id: string;
   code: string;
+  triggerType?: ('manual' | 'automatic') | null;
   type: 'percentage' | 'fixed' | 'free_shipping' | 'buy_x_get_y';
   value?: number | null;
   minOrderAmount?: number | null;
+  minQuantity?: number | null;
+  isActive?: boolean | null;
   maxUses?: number | null;
+  maxUsesPerCustomer?: number | null;
   usedCount?: number | null;
   validFrom?: string | null;
   validUntil?: string | null;
+  buyXGetYRules?:
+    | {
+        buyQuantity?: number | null;
+        buyProduct?: (string | null) | Product;
+        getQuantity?: number | null;
+        getProduct?: (string | null) | Product;
+        getDiscountPercent?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  applicableProducts?: (string | Product)[] | null;
+  excludedProducts?: (string | Product)[] | null;
   applicableCategories?: (string | Category)[] | null;
-  isActive?: boolean | null;
+  excludedCategories?: (string | Category)[] | null;
+  customerSegments?:
+    | ('new_customers' | 'returning_customers' | 'vip' | 'wholesale' | 'newsletter_subscribers')[]
+    | null;
+  applicableCustomerTiers?: (string | CustomerTier)[] | null;
+  specificCustomers?: (string | User)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -547,6 +699,113 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  status?: ('draft' | 'published' | 'archived') | null;
+  excerpt?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  author?: (string | null) | User;
+  publishedAt?: string | null;
+  featuredImage?: (string | null) | Media;
+  gallery?: (string | Media)[] | null;
+  tags?: (string | Tag)[] | null;
+  isFeatured?: boolean | null;
+  allowComments?: boolean | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gift-cards".
+ */
+export interface GiftCard {
+  id: string;
+  code: string;
+  status?: ('active' | 'redeemed' | 'expired' | 'disabled') | null;
+  initialValue: number;
+  balance: number;
+  currency?: string | null;
+  expiresAt?: string | null;
+  createdAt: string;
+  recipientName?: string | null;
+  recipientEmail?: string | null;
+  personalMessage?: string | null;
+  sender?: (string | null) | User;
+  transactions?:
+    | {
+        type: 'purchase' | 'redemption' | 'refund' | 'adjustment';
+        amount: number;
+        date: string;
+        order?: (string | null) | Order;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "abandoned-carts".
+ */
+export interface AbandonedCart {
+  id: string;
+  customer?: (string | null) | User;
+  guestEmail?: string | null;
+  items?:
+    | {
+        product?: (string | null) | Product;
+        variantSku?: string | null;
+        quantity?: number | null;
+        price?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  subtotal?: number | null;
+  tax?: number | null;
+  total?: number | null;
+  currency?: string | null;
+  abandonedAt?: string | null;
+  recoveredAt?: string | null;
+  recoveryStatus?: ('pending' | 'email_sent' | 'email_opened' | 'link_clicked' | 'converted' | 'expired') | null;
+  order?: (string | null) | Order;
+  recoveryEmailSentAt?: string | null;
+  discountCode?: string | null;
+  recoveryLinkToken?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  referrer?: string | null;
+  utmData?: {
+    source?: string | null;
+    medium?: string | null;
+    campaign?: string | null;
+    content?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -604,6 +863,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: string | Post;
+      } | null)
+    | ({
+        relationTo: 'customer-tiers';
+        value: string | CustomerTier;
+      } | null)
+    | ({
+        relationTo: 'gift-cards';
+        value: string | GiftCard;
+      } | null)
+    | ({
+        relationTo: 'abandoned-carts';
+        value: string | AbandonedCart;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -658,6 +933,11 @@ export interface UsersSelect<T extends boolean = true> {
   phone?: T;
   dateOfBirth?: T;
   role?: T;
+  customerTier?: T;
+  lifetimeValue?: T;
+  totalOrders?: T;
+  tierUpdatedAt?: T;
+  isNewsletterSubscriber?: T;
   addresses?:
     | T
     | {
@@ -700,33 +980,17 @@ export interface ProductsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   sku?: T;
+  status?: T;
+  featured?: T;
   shortDescription?: T;
   longDescription?: T;
   category?: T;
   tags?: T;
-  variants?:
-    | T
-    | {
-        sku?: T;
-        size?: T;
-        color?: T;
-        colorHex?: T;
-        stock?: T;
-        price?: T;
-        compareAtPrice?: T;
-        images?: T;
-        id?: T;
-      };
-  images?: T;
+  gender?: T;
+  brand?: T;
   price?: T;
   compareAtPrice?: T;
   costPerItem?: T;
-  brand?: T;
-  material?: T;
-  careInstructions?: T;
-  gender?: T;
-  status?: T;
-  featured?: T;
   weight?: T;
   dimensions?:
     | T
@@ -735,10 +999,60 @@ export interface ProductsSelect<T extends boolean = true> {
         width?: T;
         height?: T;
       };
-  averageRating?: T;
-  reviewCount?: T;
+  images?: T;
+  variants?:
+    | T
+    | {
+        sku?: T;
+        stock?: T;
+        trackInventory?: T;
+        size?: T;
+        color?: T;
+        colorHex?: T;
+        price?: T;
+        compareAtPrice?: T;
+        costPerItem?: T;
+        inventoryLocations?:
+          | T
+          | {
+              locationName?: T;
+              quantity?: T;
+              id?: T;
+            };
+        images?: T;
+        id?: T;
+      };
+  inventoryLocations?:
+    | T
+    | {
+        locationName?: T;
+        quantity?: T;
+        lowStockThreshold?: T;
+        id?: T;
+      };
+  currencyPrices?:
+    | T
+    | {
+        currency?: T;
+        price?: T;
+        compareAtPrice?: T;
+        id?: T;
+      };
+  metafields?:
+    | T
+    | {
+        namespace?: T;
+        key?: T;
+        type?: T;
+        value?: T;
+        id?: T;
+      };
+  material?: T;
+  careInstructions?: T;
   metaTitle?: T;
   metaDescription?: T;
+  averageRating?: T;
+  reviewCount?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -752,8 +1066,8 @@ export interface CategoriesSelect<T extends boolean = true> {
   description?: T;
   image?: T;
   parent?: T;
-  featuredOnHome?: T;
   order?: T;
+  featuredOnHome?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -765,6 +1079,10 @@ export interface OrdersSelect<T extends boolean = true> {
   orderNumber?: T;
   customer?: T;
   guestEmail?: T;
+  currency?: T;
+  status?: T;
+  paymentStatus?: T;
+  paymentMethod?: T;
   items?:
     | T
     | {
@@ -780,9 +1098,7 @@ export interface OrdersSelect<T extends boolean = true> {
   tax?: T;
   discount?: T;
   total?: T;
-  currency?: T;
-  status?: T;
-  paymentStatus?: T;
+  couponCode?: T;
   shippingAddress?:
     | T
     | {
@@ -812,11 +1128,62 @@ export interface OrdersSelect<T extends boolean = true> {
   shippingMethod?: T;
   trackingNumber?: T;
   notes?: T;
-  couponCode?: T;
-  stripePaymentIntentId?: T;
   invoiceNumber?: T;
-  invoiceSent?: T;
   invoiceDate?: T;
+  invoiceSent?: T;
+  stripePaymentIntentId?: T;
+  paypalOrderId?: T;
+  isCOD?: T;
+  codStatus?: T;
+  codAmount?: T;
+  codCollectedAt?: T;
+  codCollectedBy?: T;
+  codDeliveryAttempts?: T;
+  codDeliveryNotes?: T;
+  codVerificationCode?: T;
+  fulfillmentEvents?:
+    | T
+    | {
+        status?: T;
+        location?: T;
+        timestamp?: T;
+        message?: T;
+        trackingNumber?: T;
+        id?: T;
+      };
+  shippedFromLocation?: T;
+  estimatedDeliveryDate?: T;
+  returns?:
+    | T
+    | {
+        returnNumber?: T;
+        status?: T;
+        requestedAt?: T;
+        receivedAt?: T;
+        refundedAt?: T;
+        items?:
+          | T
+          | {
+              product?: T;
+              variantSku?: T;
+              quantity?: T;
+              price?: T;
+              refundAmount?: T;
+              returnReason?: T;
+              customerNotes?: T;
+              id?: T;
+            };
+        totalRefundAmount?: T;
+        restockingFee?: T;
+        adminNotes?: T;
+        id?: T;
+      };
+  returnStatus?: T;
+  isDraft?: T;
+  draftCreatedAt?: T;
+  draftExpiresAt?: T;
+  draftInvoiceSent?: T;
+  draftInvoiceUrl?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -827,9 +1194,9 @@ export interface OrdersSelect<T extends boolean = true> {
 export interface ReviewsSelect<T extends boolean = true> {
   product?: T;
   author?: T;
-  rating?: T;
   title?: T;
   body?: T;
+  rating?: T;
   verified?: T;
   images?: T;
   status?: T;
@@ -843,15 +1210,34 @@ export interface ReviewsSelect<T extends boolean = true> {
  */
 export interface CouponsSelect<T extends boolean = true> {
   code?: T;
+  triggerType?: T;
   type?: T;
   value?: T;
   minOrderAmount?: T;
+  minQuantity?: T;
+  isActive?: T;
   maxUses?: T;
+  maxUsesPerCustomer?: T;
   usedCount?: T;
   validFrom?: T;
   validUntil?: T;
+  buyXGetYRules?:
+    | T
+    | {
+        buyQuantity?: T;
+        buyProduct?: T;
+        getQuantity?: T;
+        getProduct?: T;
+        getDiscountPercent?: T;
+        id?: T;
+      };
+  applicableProducts?: T;
+  excludedProducts?: T;
   applicableCategories?: T;
-  isActive?: T;
+  excludedCategories?: T;
+  customerSegments?: T;
+  applicableCustomerTiers?: T;
+  specificCustomers?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1052,6 +1438,126 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  excerpt?: T;
+  content?: T;
+  author?: T;
+  publishedAt?: T;
+  featuredImage?: T;
+  gallery?: T;
+  tags?: T;
+  isFeatured?: T;
+  allowComments?: T;
+  metaTitle?: T;
+  metaDescription?: T;
+  ogImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customer-tiers_select".
+ */
+export interface CustomerTiersSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  tierLevel?: T;
+  color?: T;
+  isActive?: T;
+  minLifetimeSpend?: T;
+  minOrdersCount?: T;
+  minAccountAgeDays?: T;
+  discountPercent?: T;
+  freeShipping?: T;
+  earlyAccess?: T;
+  exclusiveProducts?: T;
+  birthdayBonus?:
+    | T
+    | {
+        enabled?: T;
+        discountPercent?: T;
+        validDays?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gift-cards_select".
+ */
+export interface GiftCardsSelect<T extends boolean = true> {
+  code?: T;
+  status?: T;
+  initialValue?: T;
+  balance?: T;
+  currency?: T;
+  expiresAt?: T;
+  createdAt?: T;
+  recipientName?: T;
+  recipientEmail?: T;
+  personalMessage?: T;
+  sender?: T;
+  transactions?:
+    | T
+    | {
+        type?: T;
+        amount?: T;
+        date?: T;
+        order?: T;
+        note?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "abandoned-carts_select".
+ */
+export interface AbandonedCartsSelect<T extends boolean = true> {
+  customer?: T;
+  guestEmail?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        variantSku?: T;
+        quantity?: T;
+        price?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  tax?: T;
+  total?: T;
+  currency?: T;
+  abandonedAt?: T;
+  recoveredAt?: T;
+  recoveryStatus?: T;
+  order?: T;
+  recoveryEmailSentAt?: T;
+  discountCode?: T;
+  recoveryLinkToken?: T;
+  ipAddress?: T;
+  userAgent?: T;
+  referrer?: T;
+  utmData?:
+    | T
+    | {
+        source?: T;
+        medium?: T;
+        campaign?: T;
+        content?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1099,17 +1605,23 @@ export interface SiteSetting {
   storeName?: string | null;
   logo?: (string | null) | Media;
   favicon?: (string | null) | Media;
+  announcement?: string | null;
   heroSlides?:
     | {
         headline?: string | null;
         subheadline?: string | null;
         cta?: string | null;
-        image?: (string | null) | Media;
         link?: string | null;
+        image?: (string | null) | Media;
         id?: string | null;
       }[]
     | null;
-  announcement?: string | null;
+  trendingSearches?:
+    | {
+        term?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   socialLinks?: {
     instagram?: string | null;
     tiktok?: string | null;
@@ -1146,17 +1658,23 @@ export interface SiteSetting {
     };
     [k: string]: unknown;
   } | null;
-  trendingSearches?:
-    | {
-        term?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
     ogImage?: (string | null) | Media;
   };
+  defaultCurrency?: ('USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'INR') | null;
+  enableMultiCurrency?: boolean | null;
+  supportedCurrencies?:
+    | {
+        code: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'INR';
+        symbol: string;
+        exchangeRate?: number | null;
+        isDefault?: boolean | null;
+        isActive?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1228,23 +1746,62 @@ export interface TopBar {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cod-settings".
+ */
+export interface CodSetting {
+  id: string;
+  enabled?: boolean | null;
+  codFee?: number | null;
+  maxCodAmount?: number | null;
+  minOrderAmount?: number | null;
+  requireVerificationCode?: boolean | null;
+  allowedPincodes?:
+    | {
+        pincode: string;
+        areaName?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  excludedPincodes?:
+    | {
+        pincode: string;
+        reason?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  maxDeliveryAttempts?: number | null;
+  autoCancelAfterAttempts?: boolean | null;
+  chargeForReturnShipping?: boolean | null;
+  codRestrictedProducts?: (string | Product)[] | null;
+  codRestrictedCategories?: (string | Category)[] | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   storeName?: T;
   logo?: T;
   favicon?: T;
+  announcement?: T;
   heroSlides?:
     | T
     | {
         headline?: T;
         subheadline?: T;
         cta?: T;
-        image?: T;
         link?: T;
+        image?: T;
         id?: T;
       };
-  announcement?: T;
+  trendingSearches?:
+    | T
+    | {
+        term?: T;
+        id?: T;
+      };
   socialLinks?:
     | T
     | {
@@ -1255,18 +1812,24 @@ export interface SiteSettingsSelect<T extends boolean = true> {
       };
   shippingPolicy?: T;
   returnPolicy?: T;
-  trendingSearches?:
-    | T
-    | {
-        term?: T;
-        id?: T;
-      };
   seo?:
     | T
     | {
         metaTitle?: T;
         metaDescription?: T;
         ogImage?: T;
+      };
+  defaultCurrency?: T;
+  enableMultiCurrency?: T;
+  supportedCurrencies?:
+    | T
+    | {
+        code?: T;
+        symbol?: T;
+        exchangeRate?: T;
+        isDefault?: T;
+        isActive?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1334,6 +1897,39 @@ export interface TopBarSelect<T extends boolean = true> {
   contactLinkText?: T;
   contactLinkUrl?: T;
   followUsText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cod-settings_select".
+ */
+export interface CodSettingsSelect<T extends boolean = true> {
+  enabled?: T;
+  codFee?: T;
+  maxCodAmount?: T;
+  minOrderAmount?: T;
+  requireVerificationCode?: T;
+  allowedPincodes?:
+    | T
+    | {
+        pincode?: T;
+        areaName?: T;
+        id?: T;
+      };
+  excludedPincodes?:
+    | T
+    | {
+        pincode?: T;
+        reason?: T;
+        id?: T;
+      };
+  maxDeliveryAttempts?: T;
+  autoCancelAfterAttempts?: T;
+  chargeForReturnShipping?: T;
+  codRestrictedProducts?: T;
+  codRestrictedCategories?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

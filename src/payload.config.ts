@@ -6,17 +6,21 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import {
+  AbandonedCarts,
   Categories,
   Coupons,
+  CustomerTiers,
+  GiftCards,
   Media,
   Orders,
   Pages,
+  Posts,
   Products,
   Reviews,
   Tags,
   Users,
 } from './collections'
-import { Navigation, SiteSettings, TopBar } from './globals'
+import { CODSettings, Navigation, SiteSettings, TopBar } from './globals'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,8 +32,22 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Products, Categories, Orders, Reviews, Coupons, Tags, Media, Pages],
-  globals: [SiteSettings, Navigation, TopBar],
+  collections: [
+    Users,
+    Products,
+    Categories,
+    Orders,
+    Reviews,
+    Coupons,
+    Tags,
+    Media,
+    Pages,
+    Posts,
+    CustomerTiers,
+    GiftCards,
+    AbandonedCarts,
+  ],
+  globals: [SiteSettings, Navigation, TopBar, CODSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

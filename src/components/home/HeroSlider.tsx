@@ -8,11 +8,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Slide {
-  headline?: string
-  subheadline?: string
-  cta?: string
-  image?: { url?: string; sizes?: { hero?: { url?: string } } } | string
-  link?: string
+  headline?: string | null
+  subheadline?: string | null
+  cta?: string | null
+  image?: { url?: string; sizes?: { hero?: { url?: string } } } | string | null
+  link?: string | null
 }
 
 export function HeroSlider({ slides }: { slides?: Slide[] }) {

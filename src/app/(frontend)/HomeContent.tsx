@@ -4,7 +4,13 @@ import { HeroSlider } from '@/components/home/HeroSlider'
 import { FeaturedCategories } from '@/components/home/FeaturedCategories'
 import { ProductRail } from '@/components/home/ProductRail'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { useFeaturedProducts, useNewArrivals, useBestSellers, useCategories, useSiteSettings } from '@/lib/hooks'
+import {
+  useFeaturedProducts,
+  useNewArrivals,
+  useBestSellers,
+  useCategories,
+  useSiteSettings,
+} from '@/lib/hooks'
 
 function ProductRailSkeleton() {
   return (
@@ -27,12 +33,16 @@ export function HomeContent() {
   const { data: newArrivals, isLoading: arrivalsLoading } = useNewArrivals(4)
   const { data: bestSellers, isLoading: bestSellersLoading } = useBestSellers(4)
 
+  console.log('settings', { settings })
+
   return (
     <div className="home">
-      <HeroSlider slides={settings?.heroSlides} />
-      
+      <HeroSlider
+        slides={settings?.heroSlides as unknown as Parameters<typeof HeroSlider>[0]['slides']}
+      />
+
       <FeaturedCategories categories={categories?.docs || []} />
-      
+
       {featuredLoading ? (
         <section className="py-48">
           <div className="max-w-container mx-auto px-24">
@@ -46,7 +56,7 @@ export function HomeContent() {
       ) : (
         <ProductRail label="Featured" products={featuredProducts?.docs || []} />
       )}
-      
+
       {arrivalsLoading ? (
         <section className="py-48">
           <div className="max-w-container mx-auto px-24">
@@ -60,7 +70,7 @@ export function HomeContent() {
       ) : (
         <ProductRail label="New Arrivals" products={newArrivals?.docs || []} />
       )}
-      
+
       {bestSellersLoading ? (
         <section className="py-48">
           <div className="max-w-container mx-auto px-24">

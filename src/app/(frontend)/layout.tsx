@@ -13,12 +13,7 @@ import { SearchOverlay } from '@/components/layout/SearchOverlay'
 import { AuthModal } from '@/components/layout/AuthModal'
 import { CartDrawer } from '@/components/layout/CartDrawer'
 import { PromoModal } from '@/components/layout/PromoModal'
-import { getPayload } from '@/lib/payload/getPayload'
-import type {
-  Navigation as NavigationType,
-  SiteSetting as SiteSettingsType,
-  TopBar as TopBarType,
-} from '@/payload-types'
+import { getSiteSettings, getNavigation, getTopBar } from '@/lib/actions/globals'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -65,33 +60,17 @@ export const viewport: Viewport = {
   userScalable: true,
 }
 
-async function getGlobalData() {
-  try {
-    const payload = await getPayload()
-
-    const [navigation, siteSettings, topBar] = await Promise.all([
-      payload.findGlobal({ slug: 'navigation' }).catch(() => null),
-      payload.findGlobal({ slug: 'site-settings' }).catch(() => null),
-      payload.findGlobal({ slug: 'top-bar' }).catch(() => null),
-    ])
-
-    return { navigation, siteSettings, topBar }
-  } catch (error) {
-    console.error('Failed to fetch global data:', error)
-    return { navigation: null, siteSettings: null, topBar: null }
-  }
-}
-
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
-  const { navigation, siteSettings, topBar } = await getGlobalData()
-
+  const siteSettings = await getSiteSettings()
+  const navigation = await getNavigation()
+  const topBar = await getTopBar()
   return (
     <html lang="en" suppressHydrationWarning data-theme="light" className={`${dmSans.variable}`}>
       <body suppressHydrationWarning className="font-sans antialiased lg:pb-0 pb-[60px]">
-        <QueryProvider>
+        <QueryProvider initialData={{ siteSettings, navigation, topBar }}>
           <TooltipProvider>
-            <TopBar data={topBar} />
+            <TopBar data={topBar ?? undefined} />
             <Header navigation={navigation} siteSettings={siteSettings} />
             {children}
             <Footer navigation={navigation} siteSettings={siteSettings} />

@@ -1,13 +1,12 @@
-// ============================================
-// COLLECTIONS EXPORT
-// Central export point for all Payload collections
-// ============================================
-
+export { AbandonedCarts } from './AbandonedCarts'
 export { Categories } from './Categories'
 export { Coupons } from './Coupons'
+export { CustomerTiers } from './CustomerTiers'
+export { GiftCards } from './GiftCards'
 export { Media } from './Media'
 export { Orders } from './Orders'
 export { Pages } from './Pages'
+export { Posts } from './Posts'
 export { Products } from './Products'
 export { Reviews } from './Reviews'
 export { Tags } from './Tags'
